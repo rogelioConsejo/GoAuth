@@ -3,7 +3,6 @@ package goAuth
 import (
 	"fmt"
 	"math/rand"
-	"regexp"
 	"testing"
 	"time"
 )
@@ -12,31 +11,66 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func TestUsuario_Password(t *testing.T) {
-	u := NewUsuario("spoq@mail.com", "spoqpass")
-	err := u.CheckPassword("spoqpass")
-	if err != nil {
-		t.Errorf("Error al revisar password: %s\n", err)
-	} else {
-		println("Password verificado")
-	}
-	err = u.CheckPassword("spoqpas")
-	if err == nil {
-		t.Errorf("Error al reconocer password incorrecto: %s\n", err)
-	} else {
-		println("Password incorrecto identificado")
-	}
-
-	var i int
-	for i = 1; i <= 100; i++ {
-		password := String(rand.Intn(20) + 1)
-		err = u.CheckPassword(password)
-		fmt.Printf("%d Probando password: %s -- ", i, password)
+	mail := "spoq@mail.com"
+	u, err := NewUsuario(mail, "spoqpass")
+	if u != nil {
+		if u.GetEmail() != mail {
+			t.Error("email guardado incorrectamente")
+		}
+		err = u.CheckPassword("spoqpass")
+		if err != nil {
+			t.Errorf("Error al revisar password: %s\n", err)
+		} else {
+			println("Password verificado")
+		}
+		err = u.CheckPassword("spoqpas")
 		if err == nil {
 			t.Errorf("Error al reconocer password incorrecto: %s\n", err)
 		} else {
 			println("Password incorrecto identificado")
 		}
+
+		var i int
+		for i = 1; i <= 10; i++ {
+			password := String(rand.Intn(20) + 1)
+			err = u.CheckPassword(password)
+			fmt.Printf("%d Probando password: %s -- ", i, password)
+			if err == nil {
+				t.Errorf("Error al reconocer password incorrecto: %s\n", err)
+			} else {
+				println("Password incorrecto identificado")
+			}
+		}
+
+		err = u.SetPassword("password inválido")
+		if err == nil {
+			t.Error("No se detectó password inválido al usar SetPassword")
+		}
+		err = u.SetPassword("    ")
+		if err == nil {
+			t.Error("No se detectó password inválido al usar SetPassword")
+		}
+		err = u.SetPassword("  dfw  ")
+		if err == nil {
+			t.Error("No se detectó password inválido al usar SetPassword")
+		}
+		err = u.SetPassword("passwordvalido")
+		if err != nil {
+			t.Error("No se detectó password válido al usar SetPassword")
+		}
+	} else {
+		t.Error("usuario nulo")
 	}
+
+	u, err = NewUsuario("spoq@mailcom", "spoqpass")
+	if u != nil || err == nil {
+		t.Error("no se detectó email incorrecto al crear usuario")
+	}
+	u, err = NewUsuario("spoq@mail.com", "spoqp ass")
+	if u != nil || err == nil {
+		t.Error("no se detectó password incorrecto al crear usuario")
+	}
+
 }
 
 var seededRand *rand.Rand = rand.New(
@@ -54,8 +88,61 @@ func String(length int) string {
 	return StringWithCharset(length, charset)
 }
 
-func TestUsuario_Email(t *testing.T){
-	mail := "spoq.mail.com"
-	emailRegexp, _ := regexp.MatchString("[a-zA-Z0-9]{1,}@[a-zA-Z0-9]{1,}\\.[a-z]{1,}", mail)
-	println(emailRegexp)
+func TestUsuario_Email(t *testing.T) {
+	mailInvalido := "spoq.mail.com"
+	mailValido := "spoq@mail.com"
+	esValido, err := revisarEmail(mailInvalido)
+	println(esValido)
+	esValido, err = revisarEmail(mailValido)
+	println(esValido)
+	if err != nil {
+		t.Errorf("Error al revisar email: %s\n", err)
+	}
+}
+
+func TestUsuario_RevisarPassword(t *testing.T) {
+	const passwordValido = "erD21*dw#$"
+	const passwordInvalido = "qwoe'sdwf"
+	const passwordCorto = "1doe"
+	const passwordLargo  = "1pe9*e93iw1oqiwedfj#*1poeadaaai"
+	esValido, err := revisarPassword(passwordValido)
+	if !esValido {
+		t.Error("No se detectó password Válido")
+	}
+	if err != nil {
+		t.Errorf("Error al revisar Password: %s\n", err)
+	}
+	if esValido && err == nil{
+		println("Password validado correctamente")
+	}
+	esValido, err = revisarPassword(passwordInvalido)
+	if esValido {
+		t.Error("No se detectó password inVálido")
+	}
+	if err != nil {
+		t.Errorf("Error al revisar Password: %s\n", err)
+	}
+	if !esValido && err == nil {
+		println("Password inválido detectado correctamente")
+	}
+	esValido, err = revisarPassword(passwordCorto)
+	if esValido {
+		t.Error("No se detectó password muy corto")
+	}
+	if err != nil {
+		t.Errorf("Error al revisar Password: %s\n", err)
+	}
+	if !esValido && err == nil{
+		println("Password corto detectado correctamente")
+	}
+	esValido, err = revisarPassword(passwordLargo)
+	if esValido {
+		t.Error("No se detectó password muy largo")
+	}
+	if err != nil {
+		t.Errorf("Error al revisar Password: %s\n", err)
+	}
+	if !esValido && err == nil{
+		println("Password Largo detectado correctamente")
+	}
 }
