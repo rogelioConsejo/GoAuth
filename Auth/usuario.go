@@ -57,6 +57,12 @@ func (u *usuario) GetEmail() (email string){
 	return
 }
 
+//TODO
+func (u *usuario) Registrar() (err error) {
+	err = guardarUsuarioEnBaseDeDatos(u)
+	return
+}
+
 func codificar(stringInicial string) (stringCodificado string, err error) {
 	var inicial []byte
 	var resultado []byte
@@ -73,5 +79,10 @@ func revisarEmail(mail string) (esEmail bool, err error) {
 
 func revisarPassword(password string) (esValido bool, err error) {
 	esValido, err = regexp.MatchString("^[A-Za-z0-9-+*/¡!#$%&?¿]{8,25}$", password)
+	return
+}
+
+//TODO
+func guardarUsuarioEnBaseDeDatos(u *usuario) (err error){
 	return
 }
