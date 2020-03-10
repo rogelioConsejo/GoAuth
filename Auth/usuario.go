@@ -7,8 +7,17 @@ import (
 )
 
 type usuario struct {
-	email    string
-	password string
+	email        string
+	passwordHash string
+}
+
+func RevisarCredenciales(email string, password string) (err error) {
+	var usr *usuario
+	usr, err = buscarUsuarioEnBaseDeDatos(email)
+	if err == nil{
+		err = usr.CheckPassword(password)
+	}
+	return
 }
 
 func NewUsuario(email string, password string) (usr *usuario, err error) {
@@ -26,9 +35,9 @@ func NewUsuario(email string, password string) (usr *usuario, err error) {
 }
 
 func (u *usuario) SetPassword(newPassword string) (err error) {
-	esValido, err := revisarPassword(newPassword)
+	esValido, err := validarPassword(newPassword)
 	if esValido && err == nil {
-		u.password, err = codificar(newPassword)
+		u.passwordHash, err = codificar(newPassword)
 	} else if !esValido {
 		err = errors.New("password incorrecto")
 	}
@@ -37,13 +46,13 @@ func (u *usuario) SetPassword(newPassword string) (err error) {
 
 func (u *usuario) CheckPassword(password string) (err error) {
 	passwordRevisado := []byte(password)
-	passwordDeUsuario := []byte(u.password)
-	err = bcrypt.CompareHashAndPassword(passwordDeUsuario, passwordRevisado)
+	passwordHashDeUsuario := []byte(u.passwordHash)
+	err = bcrypt.CompareHashAndPassword(passwordHashDeUsuario, passwordRevisado)
 	return
 }
 
 func (u *usuario) SetEmail(email string) (err error) {
-	esValido, err := revisarEmail(email)
+	esValido, err := validarEmail(email)
 	if esValido && err == nil {
 		u.email = email
 	} else if err == nil {
@@ -72,17 +81,22 @@ func codificar(stringInicial string) (stringCodificado string, err error) {
 	return
 }
 
-func revisarEmail(mail string) (esEmail bool, err error) {
+func validarEmail(mail string) (esEmail bool, err error) {
 	esEmail, err = regexp.MatchString("^[a-zA-Z0-9]{1,}@[a-zA-Z0-9]{1,}\\.[a-z]{1,}$", mail)
 	return
 }
 
-func revisarPassword(password string) (esValido bool, err error) {
+func validarPassword(password string) (esValido bool, err error) {
 	esValido, err = regexp.MatchString("^[A-Za-z0-9-+*/¡!#$%&?¿]{8,25}$", password)
 	return
 }
 
 //TODO
 func guardarUsuarioEnBaseDeDatos(u *usuario) (err error){
+	return
+}
+
+//TODO
+func buscarUsuarioEnBaseDeDatos(email string)(u *usuario, err error){
 	return
 }

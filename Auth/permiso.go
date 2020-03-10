@@ -29,16 +29,16 @@ func (p *permiso) agregarPuntoDeAcceso(puntoDeAcceso funcionAPI) (err error){
 }
 
 //TODO
-func (p *permiso) registrarPermiso()(err error){
+func (p *permiso) Registrar()(err error){
 	return
 }
 
-func (p *permiso) RevisarPermiso(u usuario)(tienePermiso bool){
+func (p *permiso) Revisar(u usuario)(tienePermiso bool){
 	//TODO
 	return 
 }
 
-func (p *permiso) OtorgarPermiso(u usuario)(err error){
+func (p *permiso) Otorgar(u usuario)(err error){
 	//TODO
 	return
 }
