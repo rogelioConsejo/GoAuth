@@ -1,0 +1,5 @@
+package configuracion
+
+func CambiarConfiguracion()  {
+	
+}
