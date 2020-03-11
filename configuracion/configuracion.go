@@ -1,5 +1,0 @@
-package configuracion
-
-func CambiarConfiguracion()  {
-	
-}
