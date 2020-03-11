@@ -1,5 +1,7 @@
 package persistencia
 
+import "log"
+
 type Conexion struct {
 	DBdireccion *string `json:"DBdireccion"`
 	DBpuerto    *int    `json:"DBpuerto"`
@@ -7,6 +9,7 @@ type Conexion struct {
 	DBPassword  *string `json:"DBPassword"`
 }
 
-func CambiarConfiguracion(conexion Conexion) {
-
+func CambiarConfiguracion(conexion Conexion) (err error) {
+	log.Printf("Configurando Base de Datos: %+v\n", conexion)
+	return
 }

@@ -1,3 +1,5 @@
 .idea/
 Hecate.exe
 serverConfig.conf
+error.log
+out.log

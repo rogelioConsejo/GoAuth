@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/rogelioConsejo/Hecate/persistencia"
+	"log"
 	"net/http"
 	"os"
 )
@@ -26,22 +27,24 @@ const serverConfigPath = "serverConfig.conf"
 
 //TODO
 func main() {
+	log.Println("Programa servidor iniciado")
 	var params Parametros
 	params = leerBanderas()
 
 	//Comportamiento central del programa de despliegue de servidor API Gateway
 	var err error
 	if *params.EsInstalacion {
-		persistencia.Instalar(params.ConfiguracionDeBD)
+		err = persistencia.Instalar(params.ConfiguracionDeBD)
 	} else if *params.EsConfiguracion {
-		persistencia.CambiarConfiguracion(params.ConfiguracionDeBD)
+		err = persistencia.CambiarConfiguracion(params.ConfiguracionDeBD)
 	} else {
 		err = correrServidor(*params.Configuracion.DireccionDeServidor, *params.Configuracion.PuertoDeServidor)
 	}
 
 	if err != nil {
-		//TODO: Loggear error de montado de servidor
+		log.Printf("error de servidor: %s\n", err.Error())
 	}
+	defer log.Println("Cerrando servidor...")
 }
 
 //Definición de banderas
@@ -73,13 +76,13 @@ func correrServidor(direccion string, puerto uint) (err error) {
 	config, err = getConfiguracionDeServidor(direccion, puerto)
 
 	if err == nil {
-		println("Ejecutando servidor...")
+		log.Print("Ejecutando servidor... ")
 		http.HandleFunc("/", handler)
 		if *config.PuertoDeServidor >= 0 {
 			puerto = 8080
 		}
 		addr := *config.DireccionDeServidor + ":" + fmt.Sprint(*config.PuertoDeServidor)
-		println(addr)
+		log.Printf("Ubicación: %s\n", addr)
 		err = http.ListenAndServe(addr, nil)
 	}
 
@@ -92,10 +95,12 @@ func getConfiguracionDeServidor(direccion string, puerto uint) (config Configura
 
 	_, err = os.Stat(serverConfigPath)
 	if configurar {
+		log.Printf("Configurando servidor: %s:%d\n", direccion, puerto)
 		config, err = configurarServidor(direccion, puerto)
 	} else if os.IsNotExist(err) {
 		err = errors.New("el servidor no está configurado, usar -h para más ayuda")
 	} else {
+		log.Println("Leyendo configuración del servidor")
 		if err == nil {
 			file, err = os.Open(serverConfigPath)
 			defer func() { err = file.Close() }()
@@ -136,6 +141,7 @@ func configurarServidor(direccion string, puerto uint) (config ConfiguracionDeSe
 	return
 }
 
+//TODO: Loggear peticiones y respuestas
 //PROGRAMA PRINCIPAL DEL SERVIDOR
 func handler(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(http.StatusOK)
