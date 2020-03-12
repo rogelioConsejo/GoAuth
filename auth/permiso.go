@@ -1,6 +1,6 @@
 package auth
 
-type permiso struct {
+type Permiso struct {
 	nombre string
 	puntosDeAcceso funciones
 }
@@ -14,31 +14,31 @@ type funcionAPI struct {
 }
 
 //TODO
-func CrearPermiso(nombre string, puntosDeAcceso funciones) (p *permiso, err error){
+func CrearPermiso(nombre string, puntosDeAcceso funciones) (p *Permiso, err error){
 	return
 }
 
 //TODO
-func LeerPermisosRegistrados() (p []*permiso, err error){
+func LeerPermisosRegistrados() (p []*Permiso, err error){
 	return
 }
 
 //TODO
-func (p *permiso) agregarPuntoDeAcceso(puntoDeAcceso funcionAPI) (err error){
+func (p *Permiso) agregarPuntoDeAcceso(puntoDeAcceso funcionAPI) (err error){
 	return
 }
 
 //TODO
-func (p *permiso) Registrar()(err error){
+func (p *Permiso) Registrar()(err error){
 	return
 }
 
-func (p *permiso) Revisar(u usuario)(tienePermiso bool){
+func (p *Permiso) Revisar(u *Usuario)(tienePermiso bool, err error){
 	//TODO
 	return 
 }
 
-func (p *permiso) Otorgar(u usuario)(err error){
+func (p *Permiso) Otorgar(u *Usuario)(err error){
 	//TODO
 	return
 }

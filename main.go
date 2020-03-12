@@ -5,13 +5,16 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/rogelioConsejo/Hecate/auth"
 	"github.com/rogelioConsejo/Hecate/persistencia"
 	"log"
 	"net/http"
 	"os"
 )
 
-type Parametros struct {
+const serverConfigPath = "serverConfig.conf"
+
+type parametros struct {
 	EsInstalacion     *bool                   `json:"EsInstalacion"`
 	EsConfiguracion   *bool                   `json:"EsConfiguracion"`
 	ConfiguracionDeBD persistencia.Conexion   `json:"ConfiguracionDeBD"`
@@ -23,12 +26,9 @@ type ConfiguracionDeServidor struct {
 	PuertoDeServidor    *uint   `json:"PuertoDeServidor"`
 }
 
-const serverConfigPath = "serverConfig.conf"
-
-//TODO
 func main() {
 	log.Println("Programa servidor iniciado")
-	var params Parametros
+	var params parametros
 	params = leerBanderas()
 
 	//Comportamiento central del programa de despliegue de servidor API Gateway
@@ -48,7 +48,7 @@ func main() {
 }
 
 //Definición de banderas
-func leerBanderas() (p Parametros) {
+func leerBanderas() (p parametros) {
 	p.EsInstalacion = flag.Bool("nuevo", false,
 		"Indica que se quiere instalar por primera vez, borrando todas las tablas existentes")
 	p.EsConfiguracion = flag.Bool("config", false,
@@ -141,9 +141,42 @@ func configurarServidor(direccion string, puerto uint) (config ConfiguracionDeSe
 	return
 }
 
-//TODO: Loggear peticiones y respuestas
 //PROGRAMA PRINCIPAL DEL SERVIDOR
 func handler(response http.ResponseWriter, request *http.Request) {
-	response.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprint(response, "Funciona!")
+	var usuario *auth.Usuario
+	var tienePermiso bool
+	var accionARealizar accion
+	var err error
+	var email string
+	var pass string
+	usuario, err = auth.RevisarCredenciales(email, pass)
+	if err == nil {
+		accionARealizar, err = parsearPeticion(request)
+	}
+
+	if err == nil {
+		tienePermiso, err = accionARealizar.permiso.Revisar(usuario)
+	}
+
+	if tienePermiso && err == nil {
+		log.Printf("Petición (%s): %s\n", usuario.GetEmail(), accionARealizar.getIdentificador())
+		var resultado *resultado
+		resultado, err = accionARealizar.do(usuario)
+		if resultado != nil {
+			log.Printf("Resultado (%s): %s -> %s\n",
+				usuario.GetEmail(), accionARealizar.getIdentificador(), resultado.getMensaje())
+		}
+	} else if !tienePermiso && err == nil {
+		log.Printf("ALERTA: usuario %s intentó realizar una acción sin permiso: %s\n", usuario.GetEmail(),
+			accionARealizar.getIdentificador())
+	}
+
+	if err != nil{
+		log.Printf("error en API Gateway: %s\n", err.Error())
+	}
+}
+
+//TODO: Implementar
+func parsearPeticion(request *http.Request) (accion accion, err error) {
+	return
 }

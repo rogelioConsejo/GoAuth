@@ -4,16 +4,14 @@ import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
-	"github.com/rogelioConsejo/golibs/persistencia"
 )
 
-type usuario struct {
+type Usuario struct {
 	email        string
 	passwordHash string
 }
 
-func RevisarCredenciales(email string, password string) (err error) {
-	var usr *usuario
+func RevisarCredenciales(email string, password string) (usr *Usuario, err error) {
 	usr, err = buscarUsuarioEnBaseDeDatos(email)
 	if err == nil{
 		err = usr.CheckPassword(password)
@@ -21,8 +19,8 @@ func RevisarCredenciales(email string, password string) (err error) {
 	return
 }
 
-func NewUsuario(email string, password string) (usr *usuario, err error) {
-	usr = new(usuario)
+func NewUsuario(email string, password string) (usr *Usuario, err error) {
+	usr = new(Usuario)
 
 	err = usr.SetEmail(email)
 	if err == nil{
@@ -35,7 +33,7 @@ func NewUsuario(email string, password string) (usr *usuario, err error) {
 	return
 }
 
-func (u *usuario) SetPassword(newPassword string) (err error) {
+func (u *Usuario) SetPassword(newPassword string) (err error) {
 	esValido, err := validarPassword(newPassword)
 	if esValido && err == nil {
 		u.passwordHash, err = codificar(newPassword)
@@ -45,14 +43,14 @@ func (u *usuario) SetPassword(newPassword string) (err error) {
 	return
 }
 
-func (u *usuario) CheckPassword(password string) (err error) {
+func (u *Usuario) CheckPassword(password string) (err error) {
 	passwordRevisado := []byte(password)
 	passwordHashDeUsuario := []byte(u.passwordHash)
 	err = bcrypt.CompareHashAndPassword(passwordHashDeUsuario, passwordRevisado)
 	return
 }
 
-func (u *usuario) SetEmail(email string) (err error) {
+func (u *Usuario) SetEmail(email string) (err error) {
 	esValido, err := validarEmail(email)
 	if esValido && err == nil {
 		u.email = email
@@ -62,12 +60,12 @@ func (u *usuario) SetEmail(email string) (err error) {
 	return
 }
 
-func (u *usuario) GetEmail() (email string){
+func (u *Usuario) GetEmail() (email string){
 	email = u.email
 	return
 }
 
-func (u *usuario) Registrar() (err error) {
+func (u *Usuario) Registrar() (err error) {
 	err = guardarUsuarioEnBaseDeDatos(u)
 	return
 }
@@ -92,12 +90,12 @@ func validarPassword(password string) (esValido bool, err error) {
 }
 
 //TODO
-func guardarUsuarioEnBaseDeDatos(u *usuario) (err error){
+func guardarUsuarioEnBaseDeDatos(u *Usuario) (err error){
 
 	return
 }
 
 //TODO
-func buscarUsuarioEnBaseDeDatos(email string)(u *usuario, err error){
+func buscarUsuarioEnBaseDeDatos(email string)(u *Usuario, err error){
 	return
 }

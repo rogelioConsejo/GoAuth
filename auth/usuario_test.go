@@ -59,16 +59,16 @@ func TestUsuario_Password(t *testing.T) {
 			t.Error("No se detectó passwordHash válido al usar SetPassword")
 		}
 	} else {
-		t.Error("usuario nulo")
+		t.Error("Usuario nulo")
 	}
 
 	u, err = NewUsuario("spoq@mailcom", "spoqpass")
 	if u != nil || err == nil {
-		t.Error("no se detectó email incorrecto al crear usuario")
+		t.Error("no se detectó email incorrecto al crear Usuario")
 	}
 	u, err = NewUsuario("spoq@mail.com", "spoqp ass")
 	if u != nil || err == nil {
-		t.Error("no se detectó passwordHash incorrecto al crear usuario")
+		t.Error("no se detectó passwordHash incorrecto al crear Usuario")
 	}
 
 }
