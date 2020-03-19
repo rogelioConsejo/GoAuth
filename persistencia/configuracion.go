@@ -15,7 +15,7 @@ const configFilePath string = "db.conf"
 //Configura la conexión a la base de datos
 func Configurar(conexion *Conexion) (err error) {
 	log.Printf("Configurando Base de Datos - %s@%s:%d\n",
-		*conexion.DBusuario, *conexion.DBdireccion, *conexion.DBpuerto)
+		conexion.DBusuario, conexion.DBdireccion, conexion.DBpuerto)
 	err = validarConfiguracion(conexion)
 	if err == nil {
 		err = guardarConfiguracion(conexion)
@@ -25,22 +25,13 @@ func Configurar(conexion *Conexion) (err error) {
 
 //Realiza una validación simple de los datos de conexión a la base de datos y prueba la conexión
 func validarConfiguracion(conexion *Conexion) (err error) {
-	if *conexion.DBdireccion == "" {
-		err = errors.New(fmt.Sprintf("dirección (%s) inválida", *conexion.DBdireccion))
+	if conexion.DBusuario == "" {
+
+		err = errors.New("usuario incorrecto")
+
 	}
-	if *conexion.DBpuerto <= 0 || *conexion.DBpuerto > maxPort {
-		if err != nil {
-			err = errors.New(fmt.Sprintf("puerto (%d) incorrecto, %s", *conexion.DBpuerto, err.Error()))
-		} else {
-			err = errors.New(fmt.Sprintf("puerto (%d) incorrecto", *conexion.DBpuerto))
-		}
-	}
-	if *conexion.DBusuario == "" {
-		if err != nil {
-			err = errors.New(fmt.Sprintf("usuario incorrecto, %s", err.Error()))
-		} else {
-			err = errors.New("usuario incorrecto")
-		}
+	if conexion.DBnombre == "" {
+		err = errors.New("nombre de base de datos incorrecto")
 	}
 
 	if err != nil {
@@ -48,6 +39,9 @@ func validarConfiguracion(conexion *Conexion) (err error) {
 	} else {
 		var db *sql.DB
 		db, err = conectarABaseDeDatos(conexion)
+		if err == nil {
+			err = db.Ping()
+		}
 		if err == nil {
 			err = db.Close()
 		}
@@ -65,11 +59,21 @@ func guardarConfiguracion(conexion *Conexion) (err error) {
 	return err
 }
 
-//TODO: leer configuración existente y arrojar error si no existe ninguna
+//Lee la configuración de conexión a base de datos existente
 func getConfiguracion() (conexion *Conexion, err error) {
+	conexion = new(Conexion)
 	var file *os.File
 	file, err = os.OpenFile(configFilePath, os.O_RDONLY, 0755)
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(conexion)
+	referencia := new(Conexion)
+	if *conexion == *referencia {
+		if err != nil{
+			errString := fmt.Sprintf("no se recuperó ninguna configuración existente: %s\n", err.Error())
+			err = errors.New(errString)
+		} else {
+			err = errors.New("no parece haber una configuración definida")
+		}
+	}
 	return
 }

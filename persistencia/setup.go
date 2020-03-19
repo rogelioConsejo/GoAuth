@@ -10,7 +10,7 @@ func Instalar(conexion *Conexion, definicionDeBaseDeDatos *BaseDeDatos) (err err
 
 	if err == nil {
 		log.Printf("Instalando nueva instancia de API Gateway (Hecate): %s::%s@%s:%d\n",
-			*conexion.DBusuario, *conexion.DBPassword, *conexion.DBdireccion, *conexion.DBpuerto)
+			conexion.DBusuario, conexion.DBPassword, conexion.DBdireccion, conexion.DBpuerto)
 		//TODO: Instalar base de datos
 	}
 	return
