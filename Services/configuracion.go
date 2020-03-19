@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -76,17 +77,29 @@ func ExportarConfiguracion() {
 
 }
 
-func NuevaFuncion(nombreServicio string,nombreFuncion string,variables[]string)  {
-
+func NuevaFuncion(nombreServicio string, nombreFuncion string, variables string) {
+	servicio := os.Getenv("go_" + nombreServicio)
+	//fmt.Println(servicio)
+	substr := []rune(string(servicio))
+	safeSubstring := string(substr[0:len(servicio)-2]) + ",\""
+	safeSubstring += nombreFuncion + "\":{"
+	result := strings.Split(variables, ",")
+	for i := range result {
+		safeSubstring += "\""+ strconv.Itoa(i) + "\":\""+result[i]+"\","
+	}
+	safeSubstring+="}"
+	safeSubstring=strings.ReplaceAll(safeSubstring,",}","}}}")
+	os.Setenv("go_"+nombreServicio,safeSubstring)
+	//fmt.Println( os.Getenv("go_" + nombreServicio))
 }
 
-func NuevoServicio(servicio string)  {
-	serviceFile,_ := ioutil.ReadFile("./Services/config.json")
-	serviceFile= []byte(strings.ReplaceAll(string(serviceFile), "}\n}", "},}"))
+func NuevoServicio(servicio string) {
+	serviceFile, _ := ioutil.ReadFile("./Services/config.json")
+	serviceFile = []byte(strings.ReplaceAll(string(serviceFile), "}\n}", "},}"))
 	runes := []rune(string(serviceFile))
-	safeSubstring := string(runes[0:len(serviceFile)-3])+",\n"
-	safeSubstring+="  "+servicio
-	safeSubstring+="\n}"
+	safeSubstring := string(runes[0:len(serviceFile)-3]) + ",\n"
+	safeSubstring += "  " + servicio
+	safeSubstring += "\n}"
 	fmt.Println(safeSubstring)
 	err := ioutil.WriteFile("./Services/config.json", []byte(safeSubstring), 0644)
 	if err != nil {
