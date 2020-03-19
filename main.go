@@ -14,10 +14,11 @@ import (
 
 const serverConfigPath = "serverConfig.conf"
 
+
 type parametros struct {
 	EsInstalacion     *bool                   `json:"EsInstalacion"`
 	EsConfiguracion   *bool                   `json:"EsConfiguracion"`
-	ConfiguracionDeBD persistencia.Conexion   `json:"ConfiguracionDeBD"`
+	ConfiguracionDeBD *persistencia.Conexion   `json:"ConfiguracionDeBD"`
 	Configuracion     ConfiguracionDeServidor `json:"ConfiguracionDeServidor"`
 }
 
@@ -26,6 +27,8 @@ type ConfiguracionDeServidor struct {
 	PuertoDeServidor    *uint   `json:"PuertoDeServidor"`
 }
 
+//TODO: Guardar configuración del servidor y de la base de datos (falta base de datos)
+//TODO: Que no se guarde la configuración del servidor nueva si ya hay una guardada y no hay bandera (default)
 func main() {
 	log.Println("Programa servidor iniciado")
 	var params parametros
@@ -34,9 +37,9 @@ func main() {
 	//Comportamiento central del programa de despliegue de servidor API Gateway
 	var err error
 	if *params.EsInstalacion {
-		err = persistencia.Instalar(params.ConfiguracionDeBD)
+		err = persistencia.Instalar(params.ConfiguracionDeBD, generarDefinicionDeBaseDeDatos())
 	} else if *params.EsConfiguracion {
-		err = persistencia.CambiarConfiguracion(params.ConfiguracionDeBD)
+		err = persistencia.Configurar(params.ConfiguracionDeBD)
 	} else {
 		err = correrServidor(*params.Configuracion.DireccionDeServidor, *params.Configuracion.PuertoDeServidor)
 	}
@@ -106,10 +109,14 @@ func getConfiguracionDeServidor(direccion string, puerto uint) (config Configura
 			defer func() { err = file.Close() }()
 		}
 		if err == nil {
-			var configJSON []byte
-			_, err = file.Read(configJSON)
-			err = json.Unmarshal(configJSON, config)
+			r := json.NewDecoder(file)
+			err = r.Decode(&config)
 		}
+	}
+
+	if err != nil{
+		nuevoError := fmt.Sprintf("error al obtener configuración de servidor: %s\n", err.Error())
+		err = errors.New(nuevoError)
 	}
 
 	return
@@ -121,17 +128,16 @@ func configurarServidor(direccion string, puerto uint) (config ConfiguracionDeSe
 	}
 
 	var file *os.File
-	var configuracionJSON []byte
+
 	if err == nil {
 		config.DireccionDeServidor = &direccion
 		config.PuertoDeServidor = &puerto
 		file, err = os.OpenFile(serverConfigPath, os.O_RDWR|os.O_CREATE, 0755)
 	}
+
 	if err == nil {
-		configuracionJSON, err = json.Marshal(config)
-	}
-	if err == nil {
-		_, err = file.Write(configuracionJSON)
+		c := json.NewEncoder(file)
+		err = c.Encode(config)
 	}
 
 	if err != nil {
@@ -178,5 +184,10 @@ func handler(response http.ResponseWriter, request *http.Request) {
 
 //TODO: Implementar
 func parsearPeticion(request *http.Request) (accion accion, err error) {
+	return
+}
+
+//TODO
+func generarDefinicionDeBaseDeDatos() (definicion *persistencia.BaseDeDatos) {
 	return
 }
