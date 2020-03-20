@@ -15,6 +15,7 @@ type Conexion struct {
 	DBnombre    string `json:"baseDeDatos"`
 }
 
+//Configura una conexión a la base de datos
 func conectarABaseDeDatos(c *Conexion) (baseDeDatos *sql.DB, err error) {
 	var datosDeConexion string = fmt.Sprintf("%s:%s@(%s)/%s?parseTime=true",
 		c.DBusuario, c.DBPassword, c.DBdireccion,  c.DBnombre)
@@ -29,7 +30,21 @@ func conectarABaseDeDatos(c *Conexion) (baseDeDatos *sql.DB, err error) {
 	return
 }
 
+//Cierra una conexión a la base de datos
 func cerrarConexion(baseDeDatos *sql.DB) (err error) {
 	err = baseDeDatos.Close()
 	return
+}
+
+//Realiza una conexión de prueba a la base de datos
+func probarConexion(err error, conexion *Conexion) error {
+	var db *sql.DB
+	db, err = conectarABaseDeDatos(conexion)
+	if err == nil {
+		err = db.Ping()
+	}
+	if err == nil {
+		err = db.Close()
+	}
+	return err
 }
