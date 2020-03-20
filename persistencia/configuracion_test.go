@@ -6,7 +6,7 @@ import (
 )
 
 func TestConfigurar(t *testing.T) {
-	c := &Conexion{
+	c := &ConfiguracionDeConexion{
 		DBusuario:   "hecate",
 		DBPassword:  "h3c4t3",
 		DBdireccion: "localhost",
@@ -43,5 +43,5 @@ func TestConfigurar2(t *testing.T) {
 	config, err := getConfiguracion()
 	println(err.Error())
 	fmt.Printf("%+v", config)
-	fmt.Printf("%+v", new(Conexion))
+	fmt.Printf("%+v", new(ConfiguracionDeConexion))
 }

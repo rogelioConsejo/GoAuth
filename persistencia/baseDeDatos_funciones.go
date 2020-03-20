@@ -3,6 +3,7 @@ package persistencia
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 //TODO
@@ -13,9 +14,10 @@ func validarNombre(nombre string) (err error) {
 //Convierte una *DefinicionDeBaseDeDatos en un query sql
 func parsearBaseDeDatos(b *DefinicionDeBaseDeDatos) (query string, err error) {
 	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(fmt.Sprintf("CREATE DATABASE %s;\n", b.nombre))
+	queryBuffer.WriteString(fmt.Sprintf("USE %s;\n", b.nombre))
 	for nombreTabla, definicionTabla := range b.tablas {
 		queryTabla := parsearTabla(definicionTabla)
+		queryBuffer.WriteString(fmt.Sprintf("DROP TABLE IF EXISTS %s;\n", nombreTabla))
 		queryBuffer.WriteString(fmt.Sprintf("CREATE TABLE %s (%s);\n", nombreTabla, queryTabla))
 	}
 
@@ -31,7 +33,8 @@ func parsearTabla(t *DefinicionDeTabla) (query string) {
 		queryColumna := parsearColumna(definicionColumna)
 		queryBuffer.WriteString(fmt.Sprintf("%s %s, ", nombreColumna, queryColumna))
 	}
-
+	query = queryBuffer.String()
+	query = strings.TrimSuffix(query, ", ")
 	return
 }
 

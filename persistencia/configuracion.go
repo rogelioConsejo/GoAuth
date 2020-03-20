@@ -12,7 +12,7 @@ const maxPort = 65535
 const configFilePath string = "db.conf"
 
 //Configura la conexión a la base de datos
-func Configurar(conexion *Conexion) (err error) {
+func Configurar(conexion *ConfiguracionDeConexion) (err error) {
 	log.Printf("Configurando Base de Datos - %s:[password]@%s/%s\n",
 		conexion.DBusuario, conexion.DBdireccion, conexion.DBnombre)
 	err = validarConfiguracion(conexion)
@@ -23,7 +23,7 @@ func Configurar(conexion *Conexion) (err error) {
 }
 
 //Realiza una validación simple de los datos de conexión a la base de datos y prueba la conexión
-func validarConfiguracion(conexion *Conexion) (err error) {
+func validarConfiguracion(conexion *ConfiguracionDeConexion) (err error) {
 	if conexion.DBusuario == "" {
 		err = errors.New("usuario incorrecto")
 	}
@@ -39,7 +39,7 @@ func validarConfiguracion(conexion *Conexion) (err error) {
 }
 
 //Guarda la configuración para ejecuciones posteriores
-func guardarConfiguracion(conexion *Conexion) (err error) {
+func guardarConfiguracion(conexion *ConfiguracionDeConexion) (err error) {
 	var file *os.File
 	file, err = os.OpenFile(configFilePath, os.O_RDWR|os.O_CREATE, 0755)
 	encoder := json.NewEncoder(file)
@@ -48,13 +48,13 @@ func guardarConfiguracion(conexion *Conexion) (err error) {
 }
 
 //Lee la configuración de conexión a base de datos existente
-func getConfiguracion() (conexion *Conexion, err error) {
-	conexion = new(Conexion)
+func getConfiguracion() (conexion *ConfiguracionDeConexion, err error) {
+	conexion = new(ConfiguracionDeConexion)
 	var file *os.File
 	file, err = os.OpenFile(configFilePath, os.O_RDONLY, 0755)
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(conexion)
-	referencia := new(Conexion)
+	referencia := new(ConfiguracionDeConexion)
 	if *conexion == *referencia {
 		if err != nil {
 			errString := fmt.Sprintf("no se recuperó ninguna configuración existente: %s\n", err.Error())

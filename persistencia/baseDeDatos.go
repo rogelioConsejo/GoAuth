@@ -1,7 +1,6 @@
 package persistencia
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 )
@@ -27,7 +26,7 @@ type definicionDeColumna struct {
 type TipoDeDato string
 
 func (t *TipoDeDato) String() string {
-	return t.String()
+	return fmt.Sprintf("%s", *t)
 }
 
 const TINY_VARCHAR TipoDeDato = "VARCHAR(64)"
@@ -40,32 +39,25 @@ const BIG_INT TipoDeDato = "BIGINT"
 
 func NuevaBaseDeDatos(nombre string) (baseDeDatos *DefinicionDeBaseDeDatos, err error) {
 	//TODO: Revisar nombre inválido con regex
+	baseDeDatos = new(DefinicionDeBaseDeDatos)
 	if nombre == "" {
 		err = errors.New("nombre de base de datos incorrecto")
 	}
 	if err == nil {
 		baseDeDatos.nombre = nombre
+		baseDeDatos.tablas = make(map[string]*DefinicionDeTabla)
 	}
 	return
 }
 
-//????
-func (b *DefinicionDeBaseDeDatos) Registrar(c *Conexion) (err error) {
-	var baseDeDatos *sql.DB
-	baseDeDatos, err = conectarABaseDeDatos(c)
-	defer func() { err = cerrarConexion(baseDeDatos) }()
-
-	//TODO
-
-	return
-}
-
 //Agrega una definición de DefinicionDeTabla a la definición de base de datos
-func (b *DefinicionDeBaseDeDatos) AgregarTabla(nombre string) (err error) {
+func (b *DefinicionDeBaseDeDatos) AgregarTabla(nombre string) (t *DefinicionDeTabla, err error) {
 	err = b.validarTabla(nombre)
 
 	if err == nil {
 		b.tablas[nombre] = new(DefinicionDeTabla)
+		t = b.tablas[nombre]
+		t.columnas = make(map[string]*definicionDeColumna)
 	}
 
 	return
@@ -126,6 +118,8 @@ func (t *DefinicionDeTabla) validarColumna(nombre string, primaryKey bool) (err 
 	if errorKey != "" && errorNombre != "" {
 		separador = " - "
 	}
-	err = errors.New(fmt.Sprintf("(%s%s%s)", errorNombre, separador, errorKey))
+	if errorKey != "" || errorNombre != "" {
+		err = errors.New(fmt.Sprintf("(%s%s%s)", errorNombre, separador, errorKey))
+	}
 	return
 }

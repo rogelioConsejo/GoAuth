@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Conexion struct {
+type ConfiguracionDeConexion struct {
 	DBdireccion string `json:"direccion"`
 	DBpuerto    int    `json:"puerto"`    //No se usa, usa 3306
 	DBusuario   string `json:"usuario"`
@@ -16,7 +16,7 @@ type Conexion struct {
 }
 
 //Configura una conexión a la base de datos
-func conectarABaseDeDatos(c *Conexion) (baseDeDatos *sql.DB, err error) {
+func conectarABaseDeDatos(c *ConfiguracionDeConexion) (baseDeDatos *sql.DB, err error) {
 	var datosDeConexion string = fmt.Sprintf("%s:%s@(%s)/%s?parseTime=true",
 		c.DBusuario, c.DBPassword, c.DBdireccion,  c.DBnombre)
 	baseDeDatos, err = sql.Open("mysql", datosDeConexion)
@@ -37,7 +37,7 @@ func cerrarConexion(baseDeDatos *sql.DB) (err error) {
 }
 
 //Realiza una conexión de prueba a la base de datos
-func probarConexion(err error, conexion *Conexion) error {
+func probarConexion(err error, conexion *ConfiguracionDeConexion) error {
 	var db *sql.DB
 	db, err = conectarABaseDeDatos(conexion)
 	if err == nil {

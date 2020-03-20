@@ -14,12 +14,11 @@ import (
 
 const serverConfigPath = "serverConfig.conf"
 
-
 type parametros struct {
-	EsInstalacion     *bool                   `json:"EsInstalacion"`
-	EsConfiguracion   *bool                   `json:"EsConfiguracion"`
-	ConfiguracionDeBD *persistencia.Conexion   `json:"ConfiguracionDeBD"`
-	Configuracion     ConfiguracionDeServidor `json:"ConfiguracionDeServidor"`
+	EsInstalacion     *bool                                 `json:"EsInstalacion"`
+	EsConfiguracion   *bool                                 `json:"EsConfiguracion"`
+	ConfiguracionDeBD *persistencia.ConfiguracionDeConexion `json:"ConfiguracionDeBD"`
+	Configuracion     ConfiguracionDeServidor               `json:"ConfiguracionDeServidor"`
 }
 
 type ConfiguracionDeServidor struct {
@@ -57,12 +56,12 @@ func leerBanderas() (p parametros) {
 	p.EsConfiguracion = flag.Bool("config", false,
 		"Indica que se quiere configurar el programa")
 
-	p.ConfiguracionDeBD.DBdireccion = flag.String("db", "", "La dirección de la base de datos")
-	p.ConfiguracionDeBD.DBpuerto = flag.Int("dbport", 3306, "El puerto de la base de datos")
-	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "",
-		"El nombre de usuario a usar para la Conexion a base de datos")
-	p.ConfiguracionDeBD.DBPassword = flag.String("dbpass", "",
-		"El password a usar para la Conexion a base de datos")
+	flag.StringVar(&p.ConfiguracionDeBD.DBdireccion, "db", "", "La dirección de la base de datos")
+	flag.IntVar(&p.ConfiguracionDeBD.DBpuerto, "dbport", 3306, "El puerto de la base de datos")
+	flag.StringVar(&p.ConfiguracionDeBD.DBusuario, "dbusr", "",
+		"El nombre de usuario a usar para la ConfiguracionDeConexion a base de datos")
+	flag.StringVar(&p.ConfiguracionDeBD.DBPassword, "dbpass", "",
+		"El password a usar para la ConfiguracionDeConexion a base de datos")
 
 	p.Configuracion.DireccionDeServidor = flag.String("d", "localhost",
 		"La direccion en donde será accesible el servidor, se debe definir también un puerto")
@@ -114,7 +113,7 @@ func getConfiguracionDeServidor(direccion string, puerto uint) (config Configura
 		}
 	}
 
-	if err != nil{
+	if err != nil {
 		nuevoError := fmt.Sprintf("error al obtener configuración de servidor: %s\n", err.Error())
 		err = errors.New(nuevoError)
 	}
@@ -177,7 +176,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 			accionARealizar.getIdentificador())
 	}
 
-	if err != nil{
+	if err != nil {
 		log.Printf("error en API Gateway: %s\n", err.Error())
 	}
 }
