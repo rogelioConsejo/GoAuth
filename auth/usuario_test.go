@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"testing"
 	"time"
@@ -104,7 +105,7 @@ func TestUsuario_RevisarPassword(t *testing.T) {
 	const passwordValido = "erD21*dw#$"
 	const passwordInvalido = "qwoe'sdwf"
 	const passwordCorto = "1doe"
-	const passwordLargo  = "1pe9*e93iw1oqiwedfj#*1poeadaaai"
+	const passwordLargo = "1pe9*e93iw1oqiwedfj#*1poeadaaai"
 	esValido, err := validarPassword(passwordValido)
 	if !esValido {
 		t.Error("No se detectó passwordHash Válido")
@@ -112,7 +113,7 @@ func TestUsuario_RevisarPassword(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error al revisar Password: %s\n", err)
 	}
-	if esValido && err == nil{
+	if esValido && err == nil {
 		println("Password validado correctamente")
 	}
 	esValido, err = validarPassword(passwordInvalido)
@@ -132,7 +133,7 @@ func TestUsuario_RevisarPassword(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error al revisar Password: %s\n", err)
 	}
-	if !esValido && err == nil{
+	if !esValido && err == nil {
 		println("Password corto detectado correctamente")
 	}
 	esValido, err = validarPassword(passwordLargo)
@@ -142,7 +143,31 @@ func TestUsuario_RevisarPassword(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error al revisar Password: %s\n", err)
 	}
-	if !esValido && err == nil{
+	if !esValido && err == nil {
 		println("Password Largo detectado correctamente")
 	}
+}
+
+func TestUsuario_Registrar(t *testing.T) {
+	u, err := NewUsuario("rogelio.consejo@gmail.com", "password")
+	if err != nil {
+		log.Println("1")
+		t.Error(err.Error())
+	} else {
+		err = u.Registrar()
+	}
+	if err != nil {
+		log.Println("2")
+		t.Error(err.Error())
+	}
+
+	u2, err := buscarUsuarioEnBaseDeDatos("rogelio.consejo@gmail.com")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	err = u2.CheckPassword("pass")
+	if err != nil {
+		t.Error(err.Error())
+	}
+
 }

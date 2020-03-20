@@ -18,8 +18,8 @@ func Instalar(conexion *ConfiguracionDeConexion, definicionDeBaseDeDatos *Defini
 	err = Configurar(conexion)
 	var db *sql.DB
 	if err == nil {
-		log.Printf("Instalando nueva instancia de API Gateway (Hecate): %s::%s@%s:%d\n",
-			conexion.DBusuario, conexion.DBPassword, conexion.DBdireccion, conexion.DBpuerto)
+		log.Printf("Instalando nueva instancia de API Gateway (Hecate): %s::%s@%s\n",
+			*conexion.DBusuario, *conexion.DBPassword, *conexion.DBdireccion)
 		db, err = conectarABaseDeDatos(conexion)
 	}
 

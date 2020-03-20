@@ -4,3 +4,4 @@ serverConfig.conf
 error.log
 out.log
 persistencia/db.conf
+db.conf

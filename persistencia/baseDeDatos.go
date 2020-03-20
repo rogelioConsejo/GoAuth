@@ -6,21 +6,22 @@ import (
 )
 
 type DefinicionDeBaseDeDatos struct {
-	nombre string
-	tablas map[string]*DefinicionDeTabla
+	Nombre string
+	Tablas map[string]*DefinicionDeTabla
 }
 
+//TODO: Implementar PrimaryKey diferente de id
 type DefinicionDeTabla struct {
-	columnas   map[string]*definicionDeColumna
-	primaryKey string
+	Columnas   map[string]*definicionDeColumna
+	PrimaryKey string
 }
 
-//TODO: Foreign Key y órden de creación de tablas
+//TODO: Foreign Key y órden de creación de Tablas
 type definicionDeColumna struct {
-	tipoDeDatos  TipoDeDato
-	notNull      bool
-	unique       bool
-	defaultValue string
+	TipoDeDatos  TipoDeDato
+	NotNull      bool
+	Unique       bool
+	DefaultValue string
 }
 
 type TipoDeDato string
@@ -38,14 +39,14 @@ const INT TipoDeDato = "INT"
 const BIG_INT TipoDeDato = "BIGINT"
 
 func NuevaBaseDeDatos(nombre string) (baseDeDatos *DefinicionDeBaseDeDatos, err error) {
-	//TODO: Revisar nombre inválido con regex
+	//TODO: Revisar Nombre inválido con regex
 	baseDeDatos = new(DefinicionDeBaseDeDatos)
 	if nombre == "" {
-		err = errors.New("nombre de base de datos incorrecto")
+		err = errors.New("Nombre de base de datos incorrecto")
 	}
 	if err == nil {
-		baseDeDatos.nombre = nombre
-		baseDeDatos.tablas = make(map[string]*DefinicionDeTabla)
+		baseDeDatos.Nombre = nombre
+		baseDeDatos.Tablas = make(map[string]*DefinicionDeTabla)
 	}
 	return
 }
@@ -55,21 +56,21 @@ func (b *DefinicionDeBaseDeDatos) AgregarTabla(nombre string) (t *DefinicionDeTa
 	err = b.validarTabla(nombre)
 
 	if err == nil {
-		b.tablas[nombre] = new(DefinicionDeTabla)
-		t = b.tablas[nombre]
-		t.columnas = make(map[string]*definicionDeColumna)
+		b.Tablas[nombre] = new(DefinicionDeTabla)
+		t = b.Tablas[nombre]
+		t.Columnas = make(map[string]*definicionDeColumna)
 	}
 
 	return
 }
 
-//valida que no exista una DefinicionDeTabla con el mismo nombre y que el nombre no sea ""
+//valida que no exista una DefinicionDeTabla con el mismo Nombre y que el Nombre no sea ""
 func (b *DefinicionDeBaseDeDatos) validarTabla(nombre string) (err error) {
 	if nombre == "" {
-		err = errors.New("nombre de DefinicionDeTabla incorrecto")
+		err = errors.New("Nombre de DefinicionDeTabla incorrecto")
 	}
 	if err == nil {
-		if _, existe := b.tablas[nombre]; existe {
+		if _, existe := b.Tablas[nombre]; existe {
 			err = errors.New("ya está definida esa DefinicionDeTabla")
 		}
 	}
@@ -79,9 +80,9 @@ func (b *DefinicionDeBaseDeDatos) validarTabla(nombre string) (err error) {
 //Obtiene el puntero a una definición de tabla dentro de la definición de la base de datos
 func (b *DefinicionDeBaseDeDatos) GetTabla(nombre string) (t *DefinicionDeTabla, err error) {
 	var existe bool
-	t, existe = b.tablas[nombre]
+	t, existe = b.Tablas[nombre]
 	if !existe {
-		err = errors.New("error al buscar tabla en definición: no existe una tabla con ese nombre")
+		err = errors.New("error al buscar tabla en definición: no existe una tabla con ese Nombre")
 	}
 	return
 }
@@ -90,30 +91,30 @@ func (b *DefinicionDeBaseDeDatos) GetTabla(nombre string) (t *DefinicionDeTabla,
 func (t *DefinicionDeTabla) AgregarColumna(nombre string, tipoDeDato TipoDeDato, defaultValue string, unique bool, notNull bool, primaryKey bool) (err error) {
 	err = t.validarColumna(nombre, primaryKey)
 	if err == nil {
-		t.columnas[nombre] = &definicionDeColumna{
-			tipoDeDatos:  tipoDeDato,
-			defaultValue: defaultValue,
-			unique:       unique,
-			notNull:      notNull,
+		t.Columnas[nombre] = &definicionDeColumna{
+			TipoDeDatos:  tipoDeDato,
+			DefaultValue: defaultValue,
+			Unique:       unique,
+			NotNull:      notNull,
 		}
 		if primaryKey {
-			t.primaryKey = nombre
+			t.PrimaryKey = nombre
 		}
 	}
 
 	return
 }
 
-//Revisa que no exista una columna con el mismo nombre u otra columna como primaryKey
+//Revisa que no exista una columna con el mismo Nombre u otra columna como PrimaryKey
 func (t *DefinicionDeTabla) validarColumna(nombre string, primaryKey bool) (err error) {
 	var errorNombre string = ""
 	var errorKey string = ""
 	var separador string = ""
-	if _, existe := t.columnas[nombre]; existe {
-		errorNombre = "ya existe una columna con ese nombre"
+	if _, existe := t.Columnas[nombre]; existe {
+		errorNombre = "ya existe una columna con ese Nombre"
 	}
-	if primaryKey && t.primaryKey != "" {
-		errorKey = "ya hay otra primaryKey definida"
+	if primaryKey && t.PrimaryKey != "" {
+		errorKey = "ya hay otra PrimaryKey definida"
 	}
 	if errorKey != "" && errorNombre != "" {
 		separador = " - "

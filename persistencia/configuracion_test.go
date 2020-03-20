@@ -6,11 +6,15 @@ import (
 )
 
 func TestConfigurar(t *testing.T) {
+	usuario := "hecate"
+	password := "h3c4t3"
+	direccion := "localhost"
+	nombre := "hecate"
 	c := &ConfiguracionDeConexion{
-		DBusuario:   "hecate",
-		DBPassword:  "h3c4t3",
-		DBdireccion: "localhost",
-		DBnombre:    "hecate",
+		DBusuario:   &usuario,
+		DBPassword:  &password,
+		DBdireccion: &direccion,
+		DBnombre:    &nombre,
 	}
 	err := Configurar(c)
 	if err != nil {
@@ -24,16 +28,16 @@ func TestConfigurar(t *testing.T) {
 		t.Error("configuración obtenida no corresponde con la registrada")
 	}
 
-	c.DBnombre = ""
+	*c.DBnombre = ""
 	err = Configurar(c)
 	if err == nil{
-		t.Error("nombre de BD vacío no detectado")
+		t.Error("Nombre de BD vacío no detectado")
 	}
-	c.DBnombre = "hecate"
-	c.DBusuario = ""
+	*c.DBnombre = "hecate"
+	*c.DBusuario = ""
 	err = Configurar(c)
 	if err == nil{
-		t.Error("nombre de usuario vacío no detectado")
+		t.Error("Nombre de usuario vacío no detectado")
 	}
 
 
@@ -41,7 +45,9 @@ func TestConfigurar(t *testing.T) {
 
 func TestConfigurar2(t *testing.T) {
 	config, err := getConfiguracion()
-	println(err.Error())
+	if err != nil {
+		println(err.Error())
+	}
 	fmt.Printf("%+v", config)
 	fmt.Printf("%+v", new(ConfiguracionDeConexion))
 }

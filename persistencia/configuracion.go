@@ -14,7 +14,7 @@ const configFilePath string = "db.conf"
 //Configura la conexión a la base de datos
 func Configurar(conexion *ConfiguracionDeConexion) (err error) {
 	log.Printf("Configurando Base de Datos - %s:[password]@%s/%s\n",
-		conexion.DBusuario, conexion.DBdireccion, conexion.DBnombre)
+		*conexion.DBusuario, *conexion.DBdireccion, *conexion.DBnombre)
 	err = validarConfiguracion(conexion)
 	if err == nil {
 		err = guardarConfiguracion(conexion)
@@ -24,11 +24,11 @@ func Configurar(conexion *ConfiguracionDeConexion) (err error) {
 
 //Realiza una validación simple de los datos de conexión a la base de datos y prueba la conexión
 func validarConfiguracion(conexion *ConfiguracionDeConexion) (err error) {
-	if conexion.DBusuario == "" {
+	if *conexion.DBusuario == "" {
 		err = errors.New("usuario incorrecto")
 	}
-	if conexion.DBnombre == "" {
-		err = errors.New("nombre de base de datos incorrecto")
+	if *conexion.DBnombre == "" {
+		err = errors.New("Nombre de base de datos incorrecto")
 	}
 	if err != nil {
 		err = errors.New(fmt.Sprintf("error en configuración de conexión a base de datos: %s", err.Error()))

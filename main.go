@@ -18,7 +18,7 @@ type parametros struct {
 	EsInstalacion     *bool                                 `json:"EsInstalacion"`
 	EsConfiguracion   *bool                                 `json:"EsConfiguracion"`
 	ConfiguracionDeBD *persistencia.ConfiguracionDeConexion `json:"ConfiguracionDeBD"`
-	Configuracion     ConfiguracionDeServidor               `json:"ConfiguracionDeServidor"`
+	Configuracion     *ConfiguracionDeServidor               `json:"ConfiguracionDeServidor"`
 }
 
 type ConfiguracionDeServidor struct {
@@ -26,17 +26,20 @@ type ConfiguracionDeServidor struct {
 	PuertoDeServidor    *uint   `json:"PuertoDeServidor"`
 }
 
-//TODO: Guardar configuración del servidor y de la base de datos (falta base de datos)
 //TODO: Que no se guarde la configuración del servidor nueva si ya hay una guardada y no hay bandera (default)
 func main() {
-	log.Println("Programa servidor iniciado")
+
 	var params parametros
 	params = leerBanderas()
 
 	//Comportamiento central del programa de despliegue de servidor API Gateway
 	var err error
 	if *params.EsInstalacion {
-		err = persistencia.Instalar(params.ConfiguracionDeBD, generarDefinicionDeBaseDeDatos())
+		var definicionBD *persistencia.DefinicionDeBaseDeDatos
+		definicionBD, err = generarDefinicionDeBaseDeDatos()
+		if err == nil {
+			err = persistencia.Instalar(params.ConfiguracionDeBD, definicionBD)
+		}
 	} else if *params.EsConfiguracion {
 		err = persistencia.Configurar(params.ConfiguracionDeBD)
 	} else {
@@ -51,16 +54,19 @@ func main() {
 
 //Definición de banderas
 func leerBanderas() (p parametros) {
+	p.Configuracion = new(ConfiguracionDeServidor)
+	p.ConfiguracionDeBD = new(persistencia.ConfiguracionDeConexion)
 	p.EsInstalacion = flag.Bool("nuevo", false,
 		"Indica que se quiere instalar por primera vez, borrando todas las tablas existentes")
 	p.EsConfiguracion = flag.Bool("config", false,
 		"Indica que se quiere configurar el programa")
 
-	flag.StringVar(&p.ConfiguracionDeBD.DBdireccion, "db", "", "La dirección de la base de datos")
-	flag.IntVar(&p.ConfiguracionDeBD.DBpuerto, "dbport", 3306, "El puerto de la base de datos")
-	flag.StringVar(&p.ConfiguracionDeBD.DBusuario, "dbusr", "",
+	p.ConfiguracionDeBD.DBnombre = flag.String("db", "", "La dirección de la base de datos")
+	p.ConfiguracionDeBD.DBdireccion = flag.String("dbdir", "", "La dirección de la base de datos")
+	p.ConfiguracionDeBD.DBpuerto = flag.Int("dbport", 3306, "El puerto de la base de datos")
+	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "",
 		"El nombre de usuario a usar para la ConfiguracionDeConexion a base de datos")
-	flag.StringVar(&p.ConfiguracionDeBD.DBPassword, "dbpass", "",
+	p.ConfiguracionDeBD.DBPassword = flag.String("dbpass", "",
 		"El password a usar para la ConfiguracionDeConexion a base de datos")
 
 	p.Configuracion.DireccionDeServidor = flag.String("d", "localhost",
@@ -186,7 +192,15 @@ func parsearPeticion(request *http.Request) (accion accion, err error) {
 	return
 }
 
-//TODO
-func generarDefinicionDeBaseDeDatos() (definicion *persistencia.DefinicionDeBaseDeDatos) {
+//Obtiene la definición de la base de datos desde definicionBD.xconf
+func generarDefinicionDeBaseDeDatos() (definicion *persistencia.DefinicionDeBaseDeDatos, err error) {
+	file, err := os.Open("definicionBD.xconf")
+	definicion = new(persistencia.DefinicionDeBaseDeDatos)
+
+	if err == nil {
+		decoder := json.NewDecoder(file)
+		err = decoder.Decode(definicion)
+	}
+
 	return
 }

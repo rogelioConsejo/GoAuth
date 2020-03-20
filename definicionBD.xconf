@@ -1,0 +1,22 @@
+{
+    "Nombre": "hecate",
+    "Tablas": {
+        "usuarios": {
+            "Columnas": {
+                "mail": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": true,
+                    "DefaultValue": ""
+                },
+                "passwordHash": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                }
+            },
+            "PrimaryKey": ""
+        }
+    }
+}
