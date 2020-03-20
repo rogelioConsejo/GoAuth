@@ -188,6 +188,6 @@ func parsearPeticion(request *http.Request) (accion accion, err error) {
 }
 
 //TODO
-func generarDefinicionDeBaseDeDatos() (definicion *persistencia.BaseDeDatos) {
+func generarDefinicionDeBaseDeDatos() (definicion *persistencia.DefinicionDeBaseDeDatos) {
 	return
 }

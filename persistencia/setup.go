@@ -5,8 +5,8 @@ import (
 	"log"
 )
 
-//TODO
-func Instalar(conexion *Conexion, definicionDeBaseDeDatos *BaseDeDatos) (err error) {
+//Crea una nueva estructura de base de datos vacía de acuerdo a una definición
+func Instalar(conexion *Conexion, definicionDeBaseDeDatos *DefinicionDeBaseDeDatos) (err error) {
 	log.Print("Iniciando instalación...")
 	err = Configurar(conexion)
 
@@ -18,6 +18,8 @@ func Instalar(conexion *Conexion, definicionDeBaseDeDatos *BaseDeDatos) (err err
 			conexion.DBusuario, conexion.DBPassword, conexion.DBdireccion, conexion.DBpuerto)
 		db, err = conectarABaseDeDatos(conexion)
 	}
+
+	//TODO: Revisar resultados
 	//var res sql.Result
 	if err == nil {
 		_, err = db.Exec(query)

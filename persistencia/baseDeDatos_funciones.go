@@ -10,27 +10,24 @@ func validarNombre(nombre string) (err error) {
 	return
 }
 
-//Convierte una *BaseDeDatos en un query sql
-func parsearBaseDeDatos(b *BaseDeDatos)(query string, err error){
-	err = b.RevisarErrores() //TODO: No implementado
-
-	if err == nil{
-		var queryBuffer bytes.Buffer
-		queryBuffer.WriteString(fmt.Sprintf("CREATE DATABASE %s;\n", b.nombre))
-		for nombreTabla, definicionTabla := range b.tablas {
-			queryTabla := parsearTabla(definicionTabla)
-			queryBuffer.WriteString(fmt.Sprintf("CREATE TABLE %s (%s);\n", nombreTabla, queryTabla))
-		}
-
-		query = queryBuffer.String()
+//Convierte una *DefinicionDeBaseDeDatos en un query sql
+func parsearBaseDeDatos(b *DefinicionDeBaseDeDatos) (query string, err error) {
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(fmt.Sprintf("CREATE DATABASE %s;\n", b.nombre))
+	for nombreTabla, definicionTabla := range b.tablas {
+		queryTabla := parsearTabla(definicionTabla)
+		queryBuffer.WriteString(fmt.Sprintf("CREATE TABLE %s (%s);\n", nombreTabla, queryTabla))
 	}
+
+	query = queryBuffer.String()
 
 	return
 }
 
-func parsearTabla(t *tabla) (query string) {
+//Convierte una *DefinicionDeTabla en un query sql correspondiente
+func parsearTabla(t *DefinicionDeTabla) (query string) {
 	var queryBuffer bytes.Buffer
-	for nombreColumna, definicionColumna := range t.columnas{
+	for nombreColumna, definicionColumna := range t.columnas {
 		queryColumna := parsearColumna(definicionColumna)
 		queryBuffer.WriteString(fmt.Sprintf("%s %s, ", nombreColumna, queryColumna))
 	}
@@ -38,7 +35,8 @@ func parsearTabla(t *tabla) (query string) {
 	return
 }
 
-func parsearColumna(c *columna) (query string) {
+//Convierte una *DefinicionDeColumna en un query sql correspondiente
+func parsearColumna(c *definicionDeColumna) (query string) {
 	var queryBuffer bytes.Buffer
 	queryBuffer.WriteString(c.tipoDeDatos.String())
 	queryBuffer.WriteString(" ")

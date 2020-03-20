@@ -3,41 +3,42 @@ package persistencia
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
-type BaseDeDatos struct {
+type DefinicionDeBaseDeDatos struct {
 	nombre string
-	tablas map[string]*tabla
+	tablas map[string]*DefinicionDeTabla
 }
 
-type tabla struct {
-	columnas   map[string]*columna
+type DefinicionDeTabla struct {
+	columnas   map[string]*definicionDeColumna
 	primaryKey string
 }
 
 //TODO: Foreign Key y órden de creación de tablas
-type columna struct {
-	tipoDeDatos  tipoDeDato
+type definicionDeColumna struct {
+	tipoDeDatos  TipoDeDato
 	notNull      bool
 	unique       bool
 	defaultValue string
 }
 
-type tipoDeDato string
+type TipoDeDato string
 
-func (t *tipoDeDato) String() string {
+func (t *TipoDeDato) String() string {
 	return t.String()
 }
 
-const TINY_VARCHAR tipoDeDato = "VARCHAR(64)"
-const VARCHAR tipoDeDato = "VARCHAR(128)"
-const BIG_VARCHAR tipoDeDato = "VARCHAR(255)"
-const TINY_INT tipoDeDato = "TINYINY"
-const SMALL_INT tipoDeDato = "SMALLINT"
-const INT tipoDeDato = "INT"
-const BIG_INT tipoDeDato = "BIGINT"
+const TINY_VARCHAR TipoDeDato = "VARCHAR(64)"
+const VARCHAR TipoDeDato = "VARCHAR(128)"
+const BIG_VARCHAR TipoDeDato = "VARCHAR(255)"
+const TINY_INT TipoDeDato = "TINYINY"
+const SMALL_INT TipoDeDato = "SMALLINT"
+const INT TipoDeDato = "INT"
+const BIG_INT TipoDeDato = "BIGINT"
 
-func NuevaBaseDeDatos(nombre string) (baseDeDatos *BaseDeDatos, err error) {
+func NuevaBaseDeDatos(nombre string) (baseDeDatos *DefinicionDeBaseDeDatos, err error) {
 	//TODO: Revisar nombre inválido con regex
 	if nombre == "" {
 		err = errors.New("nombre de base de datos incorrecto")
@@ -48,12 +49,8 @@ func NuevaBaseDeDatos(nombre string) (baseDeDatos *BaseDeDatos, err error) {
 	return
 }
 
-//TODO
-func (b *BaseDeDatos) RevisarErrores() (err error) {
-	return
-}
-
-func (b *BaseDeDatos) Registrar(c *Conexion) (err error) {
+//????
+func (b *DefinicionDeBaseDeDatos) Registrar(c *Conexion) (err error) {
 	var baseDeDatos *sql.DB
 	baseDeDatos, err = conectarABaseDeDatos(c)
 	defer func() { err = cerrarConexion(baseDeDatos) }()
@@ -63,30 +60,72 @@ func (b *BaseDeDatos) Registrar(c *Conexion) (err error) {
 	return
 }
 
-//TODO: Corregir
-func (b *BaseDeDatos) AgregarTabla(nombre string, columnas map[string]string) (err error) {
-	err = b.validarTabla(nombre, columnas)
+//Agrega una definición de DefinicionDeTabla a la definición de base de datos
+func (b *DefinicionDeBaseDeDatos) AgregarTabla(nombre string) (err error) {
+	err = b.validarTabla(nombre)
 
 	if err == nil {
-		var t tabla = tabla{nombre: nombre, columnas: columnas}
-		b.tablas[nombre] = t
+		b.tablas[nombre] = new(DefinicionDeTabla)
 	}
 
 	return
 }
 
-func (b *BaseDeDatos) validarTabla(nombre string, columnas map[string]string) (err error) {
-	//TODO: Revisar nombre inválido con regex
+//valida que no exista una DefinicionDeTabla con el mismo nombre y que el nombre no sea ""
+func (b *DefinicionDeBaseDeDatos) validarTabla(nombre string) (err error) {
 	if nombre == "" {
-		err = errors.New("nombre de tabla incorrecto")
-	}
-	if len(columnas) <= 0 {
-		err = errors.New("no se definieron columnas al agregar tabla")
+		err = errors.New("nombre de DefinicionDeTabla incorrecto")
 	}
 	if err == nil {
 		if _, existe := b.tablas[nombre]; existe {
-			err = errors.New("ya está definida esa tabla")
+			err = errors.New("ya está definida esa DefinicionDeTabla")
 		}
 	}
 	return err
+}
+
+//Obtiene el puntero a una definición de tabla dentro de la definición de la base de datos
+func (b *DefinicionDeBaseDeDatos) GetTabla(nombre string) (t *DefinicionDeTabla, err error) {
+	var existe bool
+	t, existe = b.tablas[nombre]
+	if !existe {
+		err = errors.New("error al buscar tabla en definición: no existe una tabla con ese nombre")
+	}
+	return
+}
+
+//Agrega una definicionDeColumna a una tabla
+func (t *DefinicionDeTabla) AgregarColumna(nombre string, tipoDeDato TipoDeDato, defaultValue string, unique bool, notNull bool, primaryKey bool) (err error) {
+	err = t.validarColumna(nombre, primaryKey)
+	if err == nil {
+		t.columnas[nombre] = &definicionDeColumna{
+			tipoDeDatos:  tipoDeDato,
+			defaultValue: defaultValue,
+			unique:       unique,
+			notNull:      notNull,
+		}
+		if primaryKey {
+			t.primaryKey = nombre
+		}
+	}
+
+	return
+}
+
+//Revisa que no exista una columna con el mismo nombre u otra columna como primaryKey
+func (t *DefinicionDeTabla) validarColumna(nombre string, primaryKey bool) (err error) {
+	var errorNombre string = ""
+	var errorKey string = ""
+	var separador string = ""
+	if _, existe := t.columnas[nombre]; existe {
+		errorNombre = "ya existe una columna con ese nombre"
+	}
+	if primaryKey && t.primaryKey != "" {
+		errorKey = "ya hay otra primaryKey definida"
+	}
+	if errorKey != "" && errorNombre != "" {
+		separador = " - "
+	}
+	err = errors.New(fmt.Sprintf("(%s%s%s)", errorNombre, separador, errorKey))
+	return
 }
