@@ -3,9 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
-	"github.com/rogelioConsejo/Hecate/auth"
 	"github.com/rogelioConsejo/Hecate/persistencia"
 	"log"
 	"net/http"
@@ -52,33 +50,6 @@ func main() {
 	defer log.Println("Cerrando servidor...")
 }
 
-//Definición de banderas
-func leerBanderas() (p parametros) {
-	p.Configuracion = new(ConfiguracionDeServidor)
-	p.ConfiguracionDeBD = new(persistencia.ConfiguracionDeConexion)
-	p.EsInstalacion = flag.Bool("nuevo", false,
-		"Indica que se quiere instalar por primera vez, borrando todas las tablas existentes")
-	p.EsConfiguracion = flag.Bool("config", false,
-		"Indica que se quiere configurar el programa")
-
-	p.ConfiguracionDeBD.DBnombre = flag.String("db", "", "La dirección de la base de datos")
-	p.ConfiguracionDeBD.DBdireccion = flag.String("dbdir", "", "La dirección de la base de datos")
-	p.ConfiguracionDeBD.DBpuerto = flag.Int("dbport", 3306, "El puerto de la base de datos")
-	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "",
-		"El nombre de usuario a usar para la ConfiguracionDeConexion a base de datos")
-	p.ConfiguracionDeBD.DBPassword = flag.String("dbpass", "",
-		"El password a usar para la ConfiguracionDeConexion a base de datos")
-
-	p.Configuracion.DireccionDeServidor = flag.String("d", "localhost",
-		"La direccion en donde será accesible el servidor, se debe definir también un puerto")
-	p.Configuracion.PuertoDeServidor = flag.Uint("p", 8080,
-		"El puerto desde donde será accesible el servidor, se debe definir también una dirección")
-
-	flag.Parse()
-
-	return
-}
-
 func correrServidor(direccion string, puerto uint) (err error) {
 	var config ConfiguracionDeServidor
 	config, err = getConfiguracionDeServidor(direccion, puerto)
@@ -86,6 +57,7 @@ func correrServidor(direccion string, puerto uint) (err error) {
 	if err == nil {
 		log.Print("Ejecutando servidor... ")
 		http.HandleFunc("/", handler)
+		http.HandleFunc("/usr/", usrHandler)
 		if *config.PuertoDeServidor >= 0 {
 			puerto = 8080
 		}
@@ -149,58 +121,5 @@ func configurarServidor(direccion string, puerto uint) (config ConfiguracionDeSe
 		nuevoErr := fmt.Sprintf("error al configurar servidor: %s\n", err)
 		err = errors.New(nuevoErr)
 	}
-	return
-}
-
-//PROGRAMA PRINCIPAL DEL SERVIDOR
-func handler(response http.ResponseWriter, request *http.Request) {
-	var usuario *auth.Usuario
-	var tienePermiso bool
-	var accionARealizar accion
-	var err error
-	var email string
-	var pass string
-	usuario, err = auth.RevisarCredenciales(email, pass)
-	if err == nil {
-		accionARealizar, err = parsearPeticion(request)
-	}
-
-	if err == nil {
-		tienePermiso, err = accionARealizar.permiso.Revisar(usuario)
-	}
-
-	if tienePermiso && err == nil {
-		log.Printf("Petición (%s): %s\n", usuario.GetEmail(), accionARealizar.getIdentificador())
-		var resultado *resultado
-		resultado, err = accionARealizar.do(usuario)
-		if resultado != nil {
-			log.Printf("Resultado (%s): %s -> %s\n",
-				usuario.GetEmail(), accionARealizar.getIdentificador(), resultado.getMensaje())
-		}
-	} else if !tienePermiso && err == nil {
-		log.Printf("ALERTA: usuario %s intentó realizar una acción sin permiso: %s\n", usuario.GetEmail(),
-			accionARealizar.getIdentificador())
-	}
-
-	if err != nil {
-		log.Printf("error en API Gateway: %s\n", err.Error())
-	}
-}
-
-//TODO: Implementar
-func parsearPeticion(request *http.Request) (accion accion, err error) {
-	return
-}
-
-//Obtiene la definición de la base de datos desde definicionBD.xconf
-func generarDefinicionDeBaseDeDatos() (definicion *persistencia.DefinicionDeBaseDeDatos, err error) {
-	file, err := os.Open("definicionBD.xconf")
-	definicion = new(persistencia.DefinicionDeBaseDeDatos)
-
-	if err == nil {
-		decoder := json.NewDecoder(file)
-		err = decoder.Decode(definicion)
-	}
-
 	return
 }

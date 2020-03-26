@@ -9,6 +9,12 @@
                     "Unique": true,
                     "DefaultValue": ""
                 },
+                "emailHash": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                },
                 "passwordHash": {
                     "TipoDeDatos": "VARCHAR(128)",
                     "NotNull": true,
@@ -16,7 +22,24 @@
                     "DefaultValue": ""
                 }
             },
-            "PrimaryKey": ""
+            "PrimaryKey": "emailHash"
+        },
+        "tokens":{
+            "Columnas": {
+                "codigo": {
+                    "TipoDeDatos": "VARCHAR(64)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                },
+                "usuario": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                }
+            },
+            "PrimaryKey": "codigo"
         }
     }
 }

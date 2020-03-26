@@ -14,6 +14,7 @@ const (
 type Usuario struct {
 	id           uint
 	email        string
+	emailHash    string
 	passwordHash string
 }
 
@@ -109,7 +110,7 @@ func buscarUsuarioEnBaseDeDatos(email string) (u *Usuario, err error) {
 	u.email = email
 	rows, err := persistencia.BuscarUnoEnBaseDeDatos(u, NOMBRE_TABLA)
 	if err == nil {
-		err = rows.Scan(&u.email,&u.passwordHash)
+		err = rows.Scan(&u.email, &u.passwordHash)
 	}
 	return
 }
