@@ -18,6 +18,17 @@ type Usuario struct {
 	passwordHash string
 }
 
+type UsuarioEntity struct {
+	Id           uint
+	Email        string
+	PermaToken   string
+	PasswordHash string
+}
+
+func (u *UsuarioEntity) GetId() uint {
+	return u.Id
+}
+
 func RevisarCredenciales(email string, password string) (usr *Usuario, err error) {
 	usr, err = buscarUsuarioEnBaseDeDatos(email)
 	if err == nil {
@@ -88,7 +99,7 @@ func (u *Usuario) crearPermaToken() (err error) {
 	if err == nil {
 		var esUnico bool = false
 		for !esUnico {
-			permaToken = fmt.Sprintf("%s::%s{%s}", generarToken(4), generarToken(5),generarToken(25))
+			permaToken = fmt.Sprintf("%s::%s{%s}", generarToken(4), generarToken(5), generarToken(25))
 			esUnico, err = revisarPermaTokenUnico(permaToken)
 		}
 	}
@@ -97,6 +108,14 @@ func (u *Usuario) crearPermaToken() (err error) {
 	}
 
 	return
+}
+
+func (u *Usuario) Entity() *UsuarioEntity {
+	entity := new(UsuarioEntity)
+	entity.Email = u.email
+	entity.PermaToken = u.permaToken
+	entity.PasswordHash = u.passwordHash
+	return entity
 }
 
 //TODO
@@ -125,14 +144,14 @@ func validarPassword(password string) (esValido bool, err error) {
 }
 
 func guardarUsuarioEnBaseDeDatos(u *Usuario) (err error) {
-	_, err = persistencia.RegistrarEnBaseDeDatos(u, NOMBRE_TABLA)
+	_, err = persistencia.RegistrarEnBaseDeDatos(u.Entity(), NOMBRE_TABLA)
 	return
 }
 
 func buscarUsuarioEnBaseDeDatos(email string) (u *Usuario, err error) {
 	u = new(Usuario)
 	u.email = email
-	rows, err := persistencia.BuscarUnoEnBaseDeDatos(u, NOMBRE_TABLA)
+	rows, err := persistencia.BuscarUnoEnBaseDeDatos(u.Entity(), NOMBRE_TABLA)
 	if err == nil {
 		err = rows.Scan(&u.email, &u.passwordHash)
 	}

@@ -22,7 +22,6 @@
                     "DefaultValue": ""
                 }
             },
-            "PrimaryKey": "email"
         },
         "tokens":{
             "Columnas": {
@@ -39,7 +38,6 @@
                     "DefaultValue": ""
                 }
             },
-            "PrimaryKey": "codigo"
         },
         "permisos": {},
         "permisosUsuario": {},

@@ -13,7 +13,7 @@ type DefinicionDeBaseDeDatos struct {
 //TODO: Implementar PrimaryKey diferente de id
 type DefinicionDeTabla struct {
 	Columnas   map[string]*definicionDeColumna
-	PrimaryKey string
+	//PrimaryKey string
 }
 
 //TODO: Foreign Key y órden de creación de Tablas

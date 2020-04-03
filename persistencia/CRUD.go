@@ -10,26 +10,7 @@ const AND = "AND"
 const OR = "OR"
 
 type Entity interface {
-	GetId() *Id
-}
-
-type Id struct {
-	stringID *string
-	intID    *uint64
-}
-
-func newStringID(valor string)(id *Id) {
-	id = new(Id)
-	id.stringID = &valor
-	id.intID = nil
-	return
-}
-
-func newIntID(valor uint64) (id *Id) {
-	id = new(Id)
-	id.intID = &valor
-	id.stringID = nil
-	return
+	GetId() uint
 }
 
 //TODO: usar el tipo Id (string o uint) en lugar de uint
