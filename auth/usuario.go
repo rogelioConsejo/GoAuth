@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/rogelioConsejo/Hecate/persistencia"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
@@ -12,9 +13,8 @@ const (
 )
 
 type Usuario struct {
-	id           uint
 	email        string
-	emailHash    string
+	permaToken   string //Se usa para comunicación intraservicios
 	passwordHash string
 }
 
@@ -33,15 +33,14 @@ func NewUsuario(email string, password string) (usr *Usuario, err error) {
 	if err == nil {
 		err = usr.SetPassword(password)
 	}
+	if err == nil {
+		err = usr.crearPermaToken()
+	}
 
 	if err != nil {
 		usr = nil
 	}
 	return
-}
-
-func (u *Usuario) GetId() uint {
-	return u.id
 }
 
 func (u *Usuario) SetPassword(newPassword string) (err error) {
@@ -79,6 +78,31 @@ func (u *Usuario) GetEmail() (email string) {
 func (u *Usuario) Registrar() (err error) {
 	err = guardarUsuarioEnBaseDeDatos(u)
 	return
+}
+
+func (u *Usuario) crearPermaToken() (err error) {
+	var permaToken string
+	if u == nil {
+		err = errors.New("no se puede crear permatoken en un usuario no definido")
+	}
+	if err == nil {
+		var esUnico bool = false
+		for !esUnico {
+			permaToken = fmt.Sprintf("%s::%s{%s}", generarToken(4), generarToken(5),generarToken(25))
+			esUnico, err = revisarPermaTokenUnico(permaToken)
+		}
+	}
+	if err == nil {
+		u.permaToken = permaToken
+	}
+
+	return
+}
+
+//TODO
+func revisarPermaTokenUnico(permaToken string) (bool, error) {
+	//return false, errors.New("no implementado")
+	return true, nil
 }
 
 func codificar(stringInicial string) (stringCodificado string, err error) {

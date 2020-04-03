@@ -171,3 +171,10 @@ func TestUsuario_Registrar(t *testing.T) {
 	}
 
 }
+
+func TestPermaToken(t *testing.T) {
+	usr, err := NewUsuario("spoq", "spoqpassword")
+	if err == nil {
+		println(usr.permaToken)
+	}
+}

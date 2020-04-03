@@ -10,8 +10,29 @@ const AND = "AND"
 const OR = "OR"
 
 type Entity interface {
-	GetId() uint
+	GetId() *Id
 }
+
+type Id struct {
+	stringID *string
+	intID    *uint64
+}
+
+func newStringID(valor string)(id *Id) {
+	id = new(Id)
+	id.stringID = &valor
+	id.intID = nil
+	return
+}
+
+func newIntID(valor uint64) (id *Id) {
+	id = new(Id)
+	id.intID = &valor
+	id.stringID = nil
+	return
+}
+
+//TODO: usar el tipo Id (string o uint) en lugar de uint
 
 func RegistrarEnBaseDeDatos(obj Entity, tabla string) (uint, error) {
 	var id int64
@@ -23,7 +44,7 @@ func RegistrarEnBaseDeDatos(obj Entity, tabla string) (uint, error) {
 	config, err = getConfiguracion()
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 	if err == nil {
 		campos, valores := extraerCamposYValores(obj)
@@ -46,9 +67,8 @@ func BuscarUnoEnBaseDeDatos(obj Entity, tabla string) (*sql.Row, error) {
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
-
 
 	condiciones := parsearCondicionesDeBusqueda(obj, AND)
 
@@ -63,8 +83,6 @@ func BuscarUnoEnBaseDeDatos(obj Entity, tabla string) (*sql.Row, error) {
 		entrada = baseDeDatos.QueryRow(query)
 	}
 
-
-
 	return entrada, err
 }
 
@@ -77,7 +95,7 @@ func BuscarEnBaseDeDatos(obj Entity, tabla string) (*sql.Rows, error) {
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 	if err == nil {
 		condiciones := parsearCondicionesDeBusqueda(obj, OR)
@@ -98,7 +116,7 @@ func LeerEnBaseDeDatos(id uint, modelo Entity, tabla string) (*sql.Row, error) {
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 	if err == nil {
 		columnas := parsearNombresDeColumna(modelo)
@@ -118,12 +136,11 @@ func ActualizarRegistroEnBaseDeDatos(obj Entity, tabla string, ignorados ...stri
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 	if err == nil {
 		err = revisarValorDeId(obj.GetId())
 	}
-
 
 	if err == nil {
 		campos, valores := extraerCamposYValores(obj)
@@ -146,7 +163,7 @@ func BorrarEnBaseDeDatos(id uint, tabla string) error {
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 
 	err = revisarValorDeId(id)
@@ -170,7 +187,7 @@ func RegistrarMapEnBaseDeDatos(mapa map[string]string, tabla string) (id uint, e
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 
 	if len(mapa) == 0 {
@@ -202,7 +219,7 @@ func BuscarMapaEnBaseDeDatos(mapa map[string]string, tabla string) (id uint, err
 
 	if err == nil {
 		baseDeDatos, err = conectarABaseDeDatos(config)
-		defer func() {err = cerrarConexion(baseDeDatos)}()
+		defer func() { err = cerrarConexion(baseDeDatos) }()
 	}
 
 	condiciones := parsearMapa2Condiciones(mapa)
@@ -217,9 +234,5 @@ func BuscarMapaEnBaseDeDatos(mapa map[string]string, tabla string) (id uint, err
 		err = entrada.Scan(&id)
 	}
 
-
-
 	return id, err
 }
-
-

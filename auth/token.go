@@ -7,13 +7,24 @@ import (
 )
 
 type token struct {
-	id    uint32
 	token string
 	usr   *Usuario
 }
 
-func crearToken(usuario *Usuario)(t *token, err error) {
-	var codigo string = fmt.Sprintf("%s-%s",generarToken(5),generarToken(20))
+type tokenEntity struct {
+	Token string
+	Usr   string
+}
+
+func (t *token) Entity() (entity *tokenEntity) {
+	entity = new(tokenEntity)
+	entity.Token = t.token
+	entity.Usr = t.usr.email
+	return
+}
+
+func crearToken(usuario *Usuario) (t *token, err error) {
+	var codigo string = fmt.Sprintf("%s-%s", generarToken(5), generarToken(20))
 	var esUnico bool
 	esUnico, err = validarTokenUnico(codigo)
 	if err == nil && esUnico {
@@ -26,8 +37,6 @@ func crearToken(usuario *Usuario)(t *token, err error) {
 	}
 	return
 }
-
-
 
 func destruirToken(codigo string) (err error) {
 	var t *token

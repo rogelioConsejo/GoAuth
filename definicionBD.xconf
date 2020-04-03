@@ -3,13 +3,13 @@
     "Tablas": {
         "usuarios": {
             "Columnas": {
-                "mail": {
+                "email": {
                     "TipoDeDatos": "VARCHAR(128)",
                     "NotNull": true,
                     "Unique": true,
                     "DefaultValue": ""
                 },
-                "emailHash": {
+                "permaToken": {
                     "TipoDeDatos": "VARCHAR(128)",
                     "NotNull": true,
                     "Unique": false,
@@ -22,7 +22,7 @@
                     "DefaultValue": ""
                 }
             },
-            "PrimaryKey": "emailHash"
+            "PrimaryKey": "email"
         },
         "tokens":{
             "Columnas": {
@@ -40,6 +40,10 @@
                 }
             },
             "PrimaryKey": "codigo"
-        }
+        },
+        "permisos": {},
+        "permisosUsuario": {},
+        "acciones": {},
+        "accionesPermiso": {}
     }
 }
