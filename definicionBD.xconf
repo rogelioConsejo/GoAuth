@@ -21,7 +21,7 @@
                     "Unique": false,
                     "DefaultValue": ""
                 }
-            },
+            }
         },
         "tokens":{
             "Columnas": {
@@ -32,16 +32,12 @@
                     "DefaultValue": ""
                 },
                 "usuario": {
-                    "TipoDeDatos": "VARCHAR(128)",
+                    "TipoDeDatos": "INT",
                     "NotNull": true,
-                    "Unique": false,
+                    "Unique": true,
                     "DefaultValue": ""
                 }
-            },
-        },
-        "permisos": {},
-        "permisosUsuario": {},
-        "acciones": {},
-        "accionesPermiso": {}
+            }
+        }
     }
 }

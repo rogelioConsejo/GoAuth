@@ -9,7 +9,7 @@ import (
 )
 
 const maxPort = 65535
-const configFilePath string = "db.conf"
+const configFilePath string = "./db.conf"
 
 //Configura la conexión a la base de datos
 func Configurar(conexion *ConfiguracionDeConexion) (err error) {
@@ -28,7 +28,7 @@ func validarConfiguracion(conexion *ConfiguracionDeConexion) (err error) {
 		err = errors.New("usuario incorrecto")
 	}
 	if *conexion.DBnombre == "" {
-		err = errors.New("Nombre de base de datos incorrecto")
+		err = errors.New("nombre de base de datos incorrecto")
 	}
 	if err != nil {
 		err = errors.New(fmt.Sprintf("error en configuración de conexión a base de datos: %s", err.Error()))

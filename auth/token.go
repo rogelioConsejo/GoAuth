@@ -7,19 +7,18 @@ import (
 )
 
 type token struct {
-	token string
-	usr   *Usuario
-}
-
-type tokenEntity struct {
-	Token string
-	Usr   string
+	codigo string
+	usr    *Usuario
 }
 
 func (t *token) Entity() (entity *tokenEntity) {
 	entity = new(tokenEntity)
-	entity.Token = t.token
-	entity.Usr = t.usr.email
+	_, usrId, err := buscarUsuarioEnBaseDeDatos(t.usr.email)
+	if err == nil {
+		entity.Codigo = t.codigo
+		entity.Usuario = usrId
+	}
+
 	return
 }
 
@@ -28,21 +27,22 @@ func crearToken(usuario *Usuario) (t *token, err error) {
 	var esUnico bool
 	esUnico, err = validarTokenUnico(codigo)
 	if err == nil && esUnico {
-		t.token = codigo
+		t = new(token)
+		t.codigo = codigo
 		t.usr = usuario
 		err = guardarToken(t)
 	} else if err == nil {
-		//Lo intenta hasta obtener un token único, sucede una vez cada 12'000'000'000'000'000'000'000'000'000 años si se hace cada milisegundo
+		//Lo intenta hasta obtener un codigo único, sucede una vez cada 12'000'000'000'000'000'000'000'000'000 años si se hace cada milisegundo
 		t, err = crearToken(usuario)
 	}
 	return
 }
 
 func destruirToken(codigo string) (err error) {
-	var t *token
-	t, err = buscarToken(codigo)
+	var id uint
+	_, id, err = buscarToken(codigo)
 	if err == nil {
-		err = borrarToken(t)
+		err = borrarToken(id)
 	}
 	return
 }
@@ -57,7 +57,7 @@ func generarToken(length int) string {
 
 func validarTokenUnico(codigo string) (esUnico bool, err error) {
 	var t *token
-	t, err = buscarToken(codigo)
+	t, _, err = buscarToken(codigo)
 	if err == nil {
 		if t != nil {
 			esUnico = false
@@ -65,6 +65,15 @@ func validarTokenUnico(codigo string) (esUnico bool, err error) {
 			esUnico = true
 		}
 	}
+	if err.Error() == "sql: no rows in result set" {
+		esUnico = true
+		err = nil
+	}
 
+	return
+}
+
+func validarToken(codigo string)(t *token, err error) {
+	t, _, err = buscarToken(codigo)
 	return
 }

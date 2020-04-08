@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"github.com/rogelioConsejo/Hecate/persistencia"
+	"log"
 	"os"
 )
 
@@ -16,7 +17,7 @@ func leerBanderas() (p parametros) {
 	p.EsConfiguracion = flag.Bool("config", false,
 		"Indica que se quiere configurar el programa")
 
-	p.ConfiguracionDeBD.DBnombre = flag.String("db", "", "La dirección de la base de datos")
+	p.ConfiguracionDeBD.DBnombre = flag.String("db", "", "El nombre de la base de datos")
 	p.ConfiguracionDeBD.DBdireccion = flag.String("dbdir", "", "La dirección de la base de datos")
 	p.ConfiguracionDeBD.DBpuerto = flag.Int("dbport", 3306, "El puerto de la base de datos")
 	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "",
@@ -30,6 +31,7 @@ func leerBanderas() (p parametros) {
 		"El puerto desde donde será accesible el servidor, se debe definir también una dirección")
 
 	flag.Parse()
+	log.Printf("nombre de base de datos: %s\n", *p.ConfiguracionDeBD.DBnombre)
 
 	return
 }

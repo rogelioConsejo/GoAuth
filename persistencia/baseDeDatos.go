@@ -97,9 +97,6 @@ func (t *DefinicionDeTabla) AgregarColumna(nombre string, tipoDeDato TipoDeDato,
 			Unique:       unique,
 			NotNull:      notNull,
 		}
-		if primaryKey {
-			t.PrimaryKey = nombre
-		}
 	}
 
 	return
@@ -112,9 +109,6 @@ func (t *DefinicionDeTabla) validarColumna(nombre string, primaryKey bool) (err 
 	var separador string = ""
 	if _, existe := t.Columnas[nombre]; existe {
 		errorNombre = "ya existe una columna con ese Nombre"
-	}
-	if primaryKey && t.PrimaryKey != "" {
-		errorKey = "ya hay otra PrimaryKey definida"
 	}
 	if errorKey != "" && errorNombre != "" {
 		separador = " - "

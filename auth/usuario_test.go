@@ -161,11 +161,11 @@ func TestUsuario_Registrar(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	u2, err := buscarUsuarioEnBaseDeDatos("rogelio.consejo@gmail.com")
+	u2, _, err := buscarUsuarioEnBaseDeDatos("rogelio.consejo@gmail.com")
 	if err != nil {
 		t.Error(err.Error())
 	}
-	err = u2.CheckPassword("pass")
+	err = u2.CheckPassword("password")
 	if err != nil {
 		t.Error(err.Error())
 	}

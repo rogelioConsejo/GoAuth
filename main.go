@@ -45,7 +45,7 @@ func main() {
 	}
 
 	if err != nil {
-		log.Printf("error de servidor: %s\n", err.Error())
+		log.Printf("error de ejecución: %s\n", err.Error())
 	}
 	defer log.Println("Cerrando servidor...")
 }

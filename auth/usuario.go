@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/rogelioConsejo/Hecate/persistencia"
@@ -9,7 +10,7 @@ import (
 )
 
 const (
-	NOMBRE_TABLA = "usuarios"
+	TABLA_USUARIOS = "usuarios"
 )
 
 type Usuario struct {
@@ -25,12 +26,12 @@ type UsuarioEntity struct {
 	PasswordHash string
 }
 
-func (u *UsuarioEntity) GetId() uint {
+func (u UsuarioEntity) GetId() uint {
 	return u.Id
 }
 
 func RevisarCredenciales(email string, password string) (usr *Usuario, err error) {
-	usr, err = buscarUsuarioEnBaseDeDatos(email)
+	usr, _, err = buscarUsuarioEnBaseDeDatos(email)
 	if err == nil {
 		err = usr.CheckPassword(password)
 	}
@@ -144,16 +145,43 @@ func validarPassword(password string) (esValido bool, err error) {
 }
 
 func guardarUsuarioEnBaseDeDatos(u *Usuario) (err error) {
-	_, err = persistencia.RegistrarEnBaseDeDatos(u.Entity(), NOMBRE_TABLA)
+	_, err = persistencia.RegistrarEnBaseDeDatos(*u.Entity(), TABLA_USUARIOS)
 	return
 }
 
-func buscarUsuarioEnBaseDeDatos(email string) (u *Usuario, err error) {
+func buscarUsuarioEnBaseDeDatos(email string) (u *Usuario, id uint, err error) {
 	u = new(Usuario)
+	e := new(UsuarioEntity)
 	u.email = email
-	rows, err := persistencia.BuscarUnoEnBaseDeDatos(u.Entity(), NOMBRE_TABLA)
+	rows, err := persistencia.BuscarUnoEnBaseDeDatos(*u.Entity(), TABLA_USUARIOS)
 	if err == nil {
-		err = rows.Scan(&u.email, &u.passwordHash)
+		err = rows.Scan(&e.Id,&e.Email,&e.PermaToken, &e.PasswordHash)
+	}
+	if err == nil {
+		id = e.Id
+		u.email = e.Email
+		u.passwordHash = e.PasswordHash
+		u.permaToken = e.PermaToken
+	} else {
+		u = nil
+	}
+	return
+}
+
+func leerUsuarioEnBaseDeDatos(id uint)(u *Usuario, err error) {
+	e := new(UsuarioEntity)
+
+	var row *sql.Row
+	row, err = persistencia.LeerEnBaseDeDatos(id, *e, TABLA_USUARIOS)
+	if err == nil {
+		err = row.Scan(&e.Id,&e.Email,&e.PermaToken,&e.PasswordHash)
+	}
+
+	u = new(Usuario)
+	if err == nil {
+		u.email = e.Email
+		u.permaToken = e.PermaToken
+		u.passwordHash = e.PasswordHash
 	}
 	return
 }
