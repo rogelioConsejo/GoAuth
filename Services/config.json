@@ -1,0 +1,25 @@
+{
+  "Pagos": {
+    "Servidor": "12.0.0.1",
+    "SPort": "8080",
+    "API": {
+      "registrarPago": {
+        "0": "client" ,
+        "1": "monto"
+      },
+      "eliminarPago": {
+        "0": "id"
+      }
+    }
+  },
+  "Productos": {
+    "Servidor": "12.5.9.1",
+    "SPort": "3309",
+    "API": {
+      "registarProductos":{
+        "0": "nombre",
+        "1": "unidad"
+      }
+    }
+  }
+}
