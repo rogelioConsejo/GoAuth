@@ -1,0 +1,43 @@
+{
+    "Nombre": "hecate",
+    "Tablas": {
+        "usuarios": {
+            "Columnas": {
+                "email": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": true,
+                    "DefaultValue": ""
+                },
+                "permaToken": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                },
+                "passwordHash": {
+                    "TipoDeDatos": "VARCHAR(128)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                }
+            }
+        },
+        "tokens":{
+            "Columnas": {
+                "codigo": {
+                    "TipoDeDatos": "VARCHAR(64)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                },
+                "usuario": {
+                    "TipoDeDatos": "INT",
+                    "NotNull": true,
+                    "Unique": true,
+                    "DefaultValue": ""
+                }
+            }
+        }
+    }
+}
