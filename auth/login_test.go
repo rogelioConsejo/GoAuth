@@ -6,17 +6,17 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	token,err:=Login("rserrano@sysandweb.com","123456")
-	if err ==nil {
-		fmt.Println("Inicio de sesion exitoso: ",token.codigo)
-	}else {
-		fmt.Print(err)
+	token, err := Login("rserrano@sysandweb.com", "123456")
+	if err == nil {
+		fmt.Println("Inicio de sesion exitoso: ", token.codigo)
+	} else {
+		fmt.Println(err)
 	}
 }
 
 func TestLogout(t *testing.T) {
-	err :=Logout("sdfsdfsdfsdf")
-	if err!= nil {
-		fmt.Print(err)
+	err := Logout("sdfsdfsdfsdf")
+	if err != nil {
+		fmt.Println(err)
 	}
 }
