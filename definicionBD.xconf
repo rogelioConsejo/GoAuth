@@ -39,5 +39,54 @@
                 }
             }
         }
+        "acciones":{
+            "Columnas": {
+                "nombreDelServicio": {
+                    "TipoDeDatos": "VARCHAR(64)",
+                    "NotNull": true,
+                    "Unique": false,
+                    "DefaultValue": ""
+                }
+                "verboHTTP": {
+                    "TipoDeDatos": "VARCHAR(64)",
+                    "NotNull": "true",
+                    "Unique": false,
+                    "DefaultValue": ""
+                }
+                "identificadorDeRecurso": {
+                    "TipoDeDatos": "VARCHAR(100)",
+                    "NotNull": "true",
+                    "Unique": "false",
+                    "DefaultValue": ""
+                }
+                "body": {
+                     "TipoDeDatos": "VARCHAR(100)",
+                     "NotNull": "true",
+                     "Unique": "false",
+                     "DefaultValue": ""
+                }
+            }
+        }
+        "permisosPorUsuarios": {
+            "Columnas": {
+                "nombre": {
+                    "TipoDeDatos": "VARCHAR(50)",
+                    "NotNull": "true",
+                    "Unique": "false",
+                    "DefaultValue": ""
+                }
+                "usuario": {
+                    "TipoDeDatos": "INT",
+                    "NotNull": "true",
+                    "Unique": "false",
+                    "DefaultValue": ""
+                }
+                "accion": {"TipoDeDatos": "INT",
+                "NotNull": "false",
+                "Unique": "false",
+                "DefaultValue": ""
+                }
+            }
+        }
     }
 }

@@ -8,6 +8,11 @@ import (
 
 //CÓDIGO PRINCIPAL DEL SERVIDOR
 func handler(response http.ResponseWriter, request *http.Request) {
+	if request.URL.Path != "/" {
+		http.Error(response, "404 No Encotrado.", http.StatusNotFound)
+		return
+	}
+
 	var usuario *auth.Usuario
 	var tienePermiso bool
 	var accionARealizar *auth.Accion
@@ -34,6 +39,10 @@ func handler(response http.ResponseWriter, request *http.Request) {
 }
 
 func usrHandler(response http.ResponseWriter, request *http.Request) {
+	if request.URL.Path != "/" {
+		http.Error(response, "404 No Encotrado.", http.StatusNotFound)
+		return
+	}
 	var err error
 	var accion *auth.Accion
 	var resultado *auth.Resultado

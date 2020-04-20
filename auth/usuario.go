@@ -185,3 +185,8 @@ func leerUsuarioEnBaseDeDatos(id uint)(u *Usuario, err error) {
 	}
 	return
 }
+func obtenUsuarioPorToken(codigo string)(t *token, err error){
+	t, _, err = buscaUsuarioToken(codigo)
+	return
+}
+
