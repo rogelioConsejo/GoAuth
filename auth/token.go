@@ -11,10 +11,6 @@ type token struct {
 	usr    *Usuario
 }
 
-func (t *token) Error() string {
-	panic("Error")
-}
-
 func (t *token) Entity() (entity *tokenEntity) {
 	entity = new(tokenEntity)
 	_, usrId, err := buscarUsuarioEnBaseDeDatos(t.usr.email)
