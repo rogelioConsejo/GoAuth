@@ -90,6 +90,9 @@ func loginHandelr(response http.ResponseWriter, request *http.Request)  {
 		return
 	}
 
+	response.Header().Set("Access-Control-Allow-Origin","*")
+	response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 	response.Header().Set("Content-Type", "application/json")
 	response.Write(js)
 	}else{
