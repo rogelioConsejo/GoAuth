@@ -16,7 +16,7 @@ func TestGenerarToken(t *testing.T) {
 func TestToken(t  *testing.T) {
 	var err error
 	var usuario *Usuario
-	var token *token
+	var token *Token
 
 	usuario, _, err = buscarUsuarioEnBaseDeDatos("rogelio.consejo@gmail.com")
 	if err == nil {
@@ -26,7 +26,7 @@ func TestToken(t  *testing.T) {
 
 	var codigo string
 	if err == nil {
-		codigo = token.codigo
+		codigo = token.Codigo
 		fmt.Printf("código: %s\n", codigo)
 		token, err = validarToken(codigo)
 	}

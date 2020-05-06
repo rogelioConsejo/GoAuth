@@ -1,18 +1,10 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/rogelioConsejo/Hecate/auth"
 	"log"
 	"net/http"
 )
-
-type Response struct {
-	status    	bool
-	messages 	string
-	log			string
-}
 
 //CÓDIGO PRINCIPAL DEL SERVIDOR
 func handler(response http.ResponseWriter, request *http.Request) {
@@ -27,7 +19,7 @@ func handler(response http.ResponseWriter, request *http.Request) {
 		log.Printf("Petición (%s): %s\n", usuario.GetEmail(), accionARealizar.GetNombre())
 		var resultado *auth.Resultado
 		resultado, err = accionARealizar.Do(usuario)
-		if resultado != nil && resultado.GetMensaje() != nil{
+		if resultado != nil && resultado.GetMensaje() != nil {
 			log.Printf("Resultado (%s): %s -> %s\n",
 				usuario.GetEmail(), accionARealizar.GetNombre(), *resultado.GetMensaje())
 		}
@@ -57,55 +49,37 @@ func usrHandler(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-
-func loginHandelr(response http.ResponseWriter, request *http.Request)  {
-	request.ParseForm()
-	var resp Response
+func loginHandelr(response http.ResponseWriter, request *http.Request) {
+	err := request.ParseForm()
 	var email string
 	var password string
 
-	if request.Form != nil {
+	if request.Form != nil && err == nil {
 
-	email=request.FormValue("email")
-	password=request.FormValue("pass")
+		email = request.FormValue("email")
+		password = request.FormValue("pass")
 
+		token, err := auth.Login(email, password)
 
-
-	log.Print(request.FormValue("email"))
-	log.Print(request.FormValue("pass"))
-
-	token,_,err:=auth.Login(email,password)
-
-	fmt.Print(token)
-
-	if err!=nil {
-		resp=Response{status: false,messages: "Error ",log: ""}
-	}else {
-		resp=Response{status: true,messages: "",log: token}
-	}
-	
-	js, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(response, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	response.Header().Set("Access-Control-Allow-Origin","*")
-	response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-	response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-	response.Header().Set("Content-Type", "application/json")
-	response.Write(js)
-	}else{
-
-		resp :=Response{status: false,messages: "Sin informacion que porcesar",log: ""}
-
-		js, err := json.Marshal(resp)
 		if err != nil {
-			http.Error(response, err.Error(), http.StatusInternalServerError)
+			http.Error(response, err.Error(), http.StatusUnauthorized)
+			log.Printf("error en login ( u: %s - p: %s ): %s\n", email, password, err.Error())
 			return
+		} else {
+			response.Header().Set("Access-Control-Allow-Origin", "*")
+			response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+			response.Header().Set("Access-Control-Allow-Methods", "POST")
+			response.Header().Set("Content-Type", "text/plain")
+			_, err = response.Write([]byte(token.Codigo))
+			log.Printf("Login exitoso ( u:%s )\n", email)
 		}
 
-		response.Header().Set("Content-Type", "application/json")
-		response.Write(js)
+	} else {
+		errorString := ""
+		http.Error(response, "error al leer datos de login", http.StatusInternalServerError)
+		if err != nil {
+			errorString = ": " + err.Error()
+		}
+		log.Printf("error al parsear datos de login o datos vacíos%s\n", errorString)
 	}
 }
