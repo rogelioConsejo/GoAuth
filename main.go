@@ -58,7 +58,7 @@ func correrServidor(direccion string, puerto uint) (err error) {
 		log.Print("Ejecutando servidor... ")
 		http.HandleFunc("/", handler)
 		http.HandleFunc("/usr/", usrHandler)
-		http.HandleFunc("/login/",loginHandelr)
+		http.HandleFunc("/login/", loginHandler)
 		if *config.PuertoDeServidor >= 0 {
 			puerto = 8080
 		}

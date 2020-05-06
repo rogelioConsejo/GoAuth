@@ -49,7 +49,7 @@ func usrHandler(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func loginHandelr(response http.ResponseWriter, request *http.Request) {
+func loginHandler(response http.ResponseWriter, request *http.Request) {
 	err := request.ParseForm()
 	var email string
 	var password string
