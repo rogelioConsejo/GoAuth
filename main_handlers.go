@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/rogelioConsejo/Hecate/auth"
 	"log"
 	"net/http"
@@ -57,8 +56,7 @@ func usrHandler(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
-
-func loginHandelr(response http.ResponseWriter, request *http.Request)  {
+func loginHandler(response http.ResponseWriter, request *http.Request)  {
 	request.ParseForm()
 	var resp Response
 	var email string
@@ -69,14 +67,13 @@ func loginHandelr(response http.ResponseWriter, request *http.Request)  {
 	email=request.FormValue("email")
 	password=request.FormValue("pass")
 
-
-
+/*
 	log.Print(request.FormValue("email"))
 	log.Print(request.FormValue("pass"))
-
+*/
 	token,_,err:=auth.Login(email,password)
 
-	fmt.Print(token)
+	//fmt.Print(token)
 
 	if err!=nil {
 		resp=Response{status: false,messages: "Error ",log: ""}
@@ -95,6 +92,47 @@ func loginHandelr(response http.ResponseWriter, request *http.Request)  {
 	response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 	response.Header().Set("Content-Type", "application/json")
 	response.Write(js)
+	}else{
+
+		resp :=Response{status: false,messages: "Sin informacion que porcesar",log: ""}
+
+		js, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		response.Header().Set("Content-Type", "application/json")
+		response.Write(js)
+	}
+}
+
+func facturasListadasHandler(response http.ResponseWriter, request *http.Request)  {
+	request.ParseForm()
+	var resp Response
+	var err error
+	//fmt.Println(request.ParseForm())
+	if request.ParseForm() != nil {
+
+		//fmt.Print(token)
+
+		if err!=nil {
+			resp=Response{status: false,messages: "Error ",log: ""}
+		}else {
+			resp=Response{status: true,messages: "",log: ""}
+		}
+
+		js, err := json.Marshal(resp)
+		if err != nil {
+			http.Error(response, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		response.Header().Set("Access-Control-Allow-Origin","*")
+		response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		response.Header().Set("Content-Type", "application/json")
+		response.Write(js)
 	}else{
 
 		resp :=Response{status: false,messages: "Sin informacion que porcesar",log: ""}
