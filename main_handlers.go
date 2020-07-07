@@ -1,15 +1,17 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"github.com/rogelioConsejo/Hecate/auth"
 	"log"
 	"net/http"
+	"strings"
 )
 
 //CÓDIGO PRINCIPAL DEL SERVIDOR
 func handler(response http.ResponseWriter, request *http.Request) {
-	var usuario *auth.Usuario
+
+	/*var usuario *auth.Usuario
 	var tienePermiso bool
 	var accionARealizar *auth.Accion
 	var err error
@@ -32,6 +34,36 @@ func handler(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		log.Printf("error en API Gateway: %s\n", err.Error())
 	}
+	tokent := request.Header.Get("tokent")
+	fmt.Println(tokent)
+	fmt.Println(request.Host)
+
+	*/
+	err := request.ParseForm()
+	var token string
+	var host string
+	if request.Form != nil && err == nil {
+		token = request.FormValue("token")
+		host = request.FormValue("host")
+
+		if token != " " || host != " " {
+			url := strings.Split(request.Host, "/")
+			log.Println(url)
+			servicio, _, err := auth.BuscarServicio(url[0])
+			log.Println(servicio)
+			if err == nil && servicio != nil {
+				redirectTLS(response, request, servicio.Direccion, "/"+url[1])
+				log.Println(servicio.Direccion)
+			} else {
+				responsesErr(response, errors.New("no se encontro el servicio"), "Error ")
+			}
+		} else {
+			responsesErr(response, errors.New(""), "No hay datos que porcesar")
+		}
+	} else {
+		responsesErr(response, errors.New(""), "Error de formulario")
+	}
+
 }
 
 func usrHandler(response http.ResponseWriter, request *http.Request) {
@@ -63,16 +95,11 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 		token, err := auth.Login(email, password)
 
 		if err != nil {
-			http.Error(response, err.Error(), http.StatusUnauthorized)
-			log.Printf("error en login ( u: %s - p: %s ): %s\n", email, password, err.Error())
+			mensaje := "error en login ( u: " + email + " - p: " + password + " ): " + err.Error() + "\n"
+			responsesErr(response, err, mensaje)
 			return
 		} else {
-			response.Header().Set("Access-Control-Allow-Origin", "*")
-			response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-			response.Header().Set("Access-Control-Allow-Methods", "POST")
-			response.Header().Set("Content-Type", "text/plain")
-			_, err = response.Write([]byte(token.Codigo))
-			log.Printf("Login exitoso ( u:%s )\n", email)
+			responses(response, token.Codigo)
 		}
 
 	} else {
@@ -83,45 +110,109 @@ func loginHandler(response http.ResponseWriter, request *http.Request) {
 		}
 		log.Printf("error al parsear datos de login o datos vacíos%s\n", errorString)
 	}
+
 }
 
-func facturasListadasHandler(response http.ResponseWriter, request *http.Request)  {
-	request.ParseForm()
-	var resp Response
+func logoutHandler(response http.ResponseWriter, request *http.Request) {
+
+	var token string
 	var err error
-	//fmt.Println(request.ParseForm())
-	if request.ParseForm() != nil {
 
-		//fmt.Print(token)
+	token = request.FormValue("token")
 
-		if err!=nil {
-			resp=Response{status: false,messages: "Error ",log: ""}
-		}else {
-			resp=Response{status: true,messages: "",log: ""}
-		}
-
-		js, err := json.Marshal(resp)
+	if token != " " {
+		err = auth.Logout(token)
 		if err != nil {
-			http.Error(response, err.Error(), http.StatusInternalServerError)
-			return
+			responsesErr(response, err, "Error de logout")
 		}
-
-		response.Header().Set("Access-Control-Allow-Origin","*")
-		response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-		response.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-		response.Header().Set("Content-Type", "application/json")
-		response.Write(js)
-	}else{
-
-		resp :=Response{status: false,messages: "Sin informacion que porcesar",log: ""}
-
-		js, err := json.Marshal(resp)
-		if err != nil {
-			http.Error(response, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		response.Header().Set("Content-Type", "application/json")
-		response.Write(js)
+	} else {
+		responsesErr(response, err, "Error no hay token")
 	}
+}
+
+func serviciosHandler(response http.ResponseWriter, request *http.Request) {
+
+	var accion string
+	var direccion string
+	var nombre string
+	//var id_servicio string
+	var err error
+
+	accion = request.FormValue("accion")
+	direccion = request.FormValue("direccion")
+	nombre = request.FormValue("nombre")
+
+	if accion != "" || direccion != "" || nombre != "" {
+
+		servicio := auth.Servico{Nombre: nombre, Direccion: direccion}
+
+		switch accion {
+
+		case "registrar":
+			_, id, err := auth.BuscarServicio(nombre)
+			if id == 0 {
+				if err != nil {
+					_, err := auth.RegistrarServicio(servicio)
+					if err != nil {
+						responsesErr(response, err, "Error al registrar")
+					} else {
+						responses(response, "Registro exitoso")
+					}
+				}
+			} else {
+				responses(response, "Datos ya existentes")
+			}
+			break
+		case "buscar":
+			_, id, err := auth.BuscarServicio(nombre)
+			if err == nil {
+				responses(response, string(id))
+			} else {
+				responsesErr(response, err, "")
+			}
+			break
+		case "actualizar":
+			//err := auth.ActualizarServicio(id_servicio)
+			break
+		case "eliminar":
+			err := auth.EliminarServicio(nombre)
+			if err == nil {
+				responses(response, "eliminacion correcta")
+			} else {
+				responsesErr(response, err, "Error en eliminacion")
+			}
+			break
+		default:
+			responses(response, "Accion desconocida")
+			break
+		}
+	} else {
+		responsesErr(response, err, "Error no hay datos que procesar")
+	}
+}
+
+func redirectTLS(w http.ResponseWriter, r *http.Request, servidor string, accion string) {
+	http.Redirect(w, r, servidor+accion+r.RequestURI, http.StatusMovedPermanently)
+}
+
+func responses(response http.ResponseWriter, mensaje string) {
+	var err error
+
+	response.Header().Set("Access-Control-Allow-Origin", "*")
+	response.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	response.Header().Set("Access-Control-Allow-Methods", "POST")
+	response.Header().Set("Content-Type", "text/plain")
+
+	_, err = response.Write([]byte(mensaje))
+
+	if err == nil {
+		log.Printf("%v\n", mensaje)
+	} else {
+		log.Println("Error de escritura")
+	}
+}
+
+func responsesErr(response http.ResponseWriter, err error, mensaje string) {
+	http.Error(response, err.Error(), http.StatusUnauthorized)
+	log.Println(mensaje, ' ', err.Error())
 }

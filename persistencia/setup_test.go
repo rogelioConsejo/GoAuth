@@ -8,8 +8,8 @@ import (
 )
 
 func TestInstalar(t *testing.T) {
-	usuario := "hecate"
-	password := "h3c4t3"
+	usuario := "root"
+	password := ""
 	direccion := "localhost"
 	nombre := "hecate"
 	c := &ConfiguracionDeConexion{

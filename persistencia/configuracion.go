@@ -9,7 +9,7 @@ import (
 )
 
 const maxPort = 65535
-const configFilePath string = "./db.conf"
+const configFilePath string = "C:\\Users\\Roberto\\go\\src\\Hecate\\persistencia\\db.conf"
 
 //Configura la conexión a la base de datos
 func Configurar(conexion *ConfiguracionDeConexion) (err error) {

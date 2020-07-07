@@ -17,10 +17,10 @@ func leerBanderas() (p parametros) {
 	p.EsConfiguracion = flag.Bool("config", false,
 		"Indica que se quiere configurar el programa")
 
-	p.ConfiguracionDeBD.DBnombre = flag.String("db", "", "El nombre de la base de datos")
-	p.ConfiguracionDeBD.DBdireccion = flag.String("dbdir", "", "La dirección de la base de datos")
+	p.ConfiguracionDeBD.DBnombre = flag.String("db", "hecate", "El nombre de la base de datos")
+	p.ConfiguracionDeBD.DBdireccion = flag.String("dbdir", "127.0.0.1", "La dirección de la base de datos")
 	p.ConfiguracionDeBD.DBpuerto = flag.Int("dbport", 3306, "El puerto de la base de datos")
-	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "",
+	p.ConfiguracionDeBD.DBusuario = flag.String("dbusr", "root",
 		"El nombre de usuario a usar para la ConfiguracionDeConexion a base de datos")
 	p.ConfiguracionDeBD.DBPassword = flag.String("dbpass", "",
 		"El password a usar para la ConfiguracionDeConexion a base de datos")

@@ -6,8 +6,8 @@ import (
 )
 
 func TestConfigurar(t *testing.T) {
-	usuario := "hecate"
-	password := "h3c4t3"
+	usuario := "su"
+	password := "Halo4ygokugt"
 	direccion := "localhost"
 	nombre := "hecate"
 	c := &ConfiguracionDeConexion{
@@ -48,6 +48,6 @@ func TestConfigurar2(t *testing.T) {
 	if err != nil {
 		println(err.Error())
 	}
-	fmt.Printf("%+v", config)
-	fmt.Printf("%+v", new(ConfiguracionDeConexion))
+	fmt.Printf("%+v\n", config)
+	fmt.Printf("%+v\n", new(ConfiguracionDeConexion))
 }
